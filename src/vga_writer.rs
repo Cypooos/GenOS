@@ -34,6 +34,7 @@ pub enum Color {
 pub struct ColorCode(u8);
 
 impl ColorCode {
+    #[allow(dead_code)]
     fn new(foreground: Color, background: Color) -> ColorCode {
         ColorCode((background as u8) << 4 | (foreground as u8))
     }
@@ -48,7 +49,7 @@ pub struct ScreenChar {
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
-pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode::new(Color::Yellow, Color::Black);
+pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(14);
 
 #[repr(transparent)]
 struct Buffer {
@@ -125,7 +126,20 @@ impl Writer {
                 }
             }
         } else {
+            let mut should_igniore_next:bool = false;
             for colorized in s.split("$") {
+                if colorized == "" {
+                    self.write_byte(b'$');
+                    should_igniore_next = true;
+                    continue
+                }
+                if should_igniore_next { // in case of $$a0 , empty set should_igniore_next, and next is print (aa) and not interpreted
+                    should_igniore_next = true;
+                    for byte in colorized.chars() {
+                        self.write_byte(byte as u8);
+                    }
+                    continue
+                }
                 let mut iter = colorized.chars();
 
                 match (iter.next(),iter.next()) {

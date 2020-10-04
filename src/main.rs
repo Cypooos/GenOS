@@ -21,6 +21,7 @@ fn panic(_info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     println!("booting done !");
     println!("testing $0acolors$a1soo nice");
+    println!("testing more : $$ok $-ok $$a0 $", );
 
     #[cfg(test)]
     test_main();
