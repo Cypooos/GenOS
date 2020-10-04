@@ -31,7 +31,7 @@ pub enum Color {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
-struct ColorCode(u8);
+pub struct ColorCode(u8);
 
 impl ColorCode {
     fn new(foreground: Color, background: Color) -> ColorCode {
@@ -41,13 +41,14 @@ impl ColorCode {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
-struct ScreenChar {
+pub struct ScreenChar {
     ascii_character: u8,
     color_code: ColorCode,
 }
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
+pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode::new(Color::Yellow, Color::Black);
 
 #[repr(transparent)]
 struct Buffer {
@@ -58,7 +59,7 @@ struct Buffer {
 
 pub struct Writer {
     column_position: usize,
-    color_code: ColorCode,
+    pub color_code: ColorCode,
     buffer: &'static mut Buffer,
     pub is_limited: bool
 }
@@ -67,8 +68,9 @@ pub struct Writer {
 
 impl Writer {
 
-    pub fn setColor(&mut self,front:Color,back:Color) {
-        self.color_code = ColorCode::new(Color::Yellow, Color::Black);
+    #[allow(dead_code)]
+    pub fn set_color(&mut self,front:Color,back:Color) {
+        self.color_code = ColorCode((front as u8) << 4 | (back as u8));
     }
 
     pub fn write_byte(&mut self, byte: u8) {
@@ -107,16 +109,13 @@ impl Writer {
         for col in 0..BUFFER_WIDTH {
             self.buffer.chars[row][col].write(ScreenChar {
                 ascii_character: b' ',
-                color_code: self.color_code,
+                color_code: DEFAULT_COLOR_CODE,
             });
         }
     }
 
     pub fn write_string(&mut self, s: &str) {
         if self.is_limited {
-
-
-
             for byte in s.bytes() {
                 match byte {
                     // printable ASCII byte or newline
@@ -126,12 +125,39 @@ impl Writer {
                 }
             }
         } else {
-            for byte in s.bytes() {
-                self.write_byte(byte)
-            }
+            for colorized in s.split("$") {
+                let mut iter = colorized.chars();
+
+                match (iter.next(),iter.next()) {
+                    (Some(a),Some(b)) => {
+                        let mut color = [0 ;1];
+                        let color_a = i32::from_str_radix((a).encode_utf8(&mut color), 16);
+                        let color_b = i32::from_str_radix((b).encode_utf8(&mut color), 16);
+                        match (color_a,color_b) {
+                            (Ok(ca),Ok(cb)) => {
+                                self.color_code = ColorCode ((ca as u8) <<4 | (cb as u8));
+                                for byte in iter {
+                                    self.write_byte(byte as u8);
+                                }
+                            },
+                            _ => {
+                                for byte in colorized.chars(){
+                                    self.write_byte(byte as u8);
+                                }
+                            }
+                        };
+                    },
+                    _ => {
+                        for byte in colorized.chars() {
+                            self.write_byte(byte as u8);
+                        }
+                    }
+                }
+            };
         }
     }
 }
+
 
 #[allow(dead_code)]
 pub fn test_print() {
@@ -152,7 +178,7 @@ impl fmt::Write for Writer {
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        color_code: DEFAULT_COLOR_CODE,
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
         is_limited:false
     });
@@ -172,5 +198,7 @@ macro_rules! print {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
+    WRITER.lock().color_code = DEFAULT_COLOR_CODE;
     WRITER.lock().write_fmt(args).unwrap();
+    WRITER.lock().color_code = DEFAULT_COLOR_CODE;
 }

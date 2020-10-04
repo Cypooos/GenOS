@@ -20,6 +20,7 @@ fn panic(_info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     println!("booting done !");
+    println!("testing $0acolors$a1soo nice");
 
     #[cfg(test)]
     test_main();
@@ -40,5 +41,5 @@ fn test_runner(tests: &[&dyn Fn()]) {
 fn trivial_assertion() {
     print!("trivial assertion... ");
     assert_eq!(1, 1);
-    println!("[ok]");
+    println!("[$0aok]");
 }
