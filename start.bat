@@ -14,7 +14,7 @@ cargo clean
 exit
 
 :test
-cargo xtest --target targets/x86_64-genos.json
+cargo test --target targets/x86_64-genos.json
 cargo bootimage
 qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-rust_genos.bin
 exit
