@@ -133,7 +133,7 @@ impl Writer {
                     should_igniore_next = true;
                     continue
                 }
-                if should_igniore_next { // in case of $$a0 , empty set should_igniore_next, and next is print (aa) and not interpreted
+                if should_igniore_next { // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
                     should_igniore_next = true;
                     for byte in colorized.chars() {
                         self.write_byte(byte as u8);
