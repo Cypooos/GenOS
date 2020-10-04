@@ -28,6 +28,7 @@ pub enum Color {
     White = 15,
 }
 
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
 struct ColorCode(u8);
@@ -65,6 +66,11 @@ pub struct Writer {
 
 
 impl Writer {
+
+    pub fn setColor(&mut self,front:Color,back:Color) {
+        self.color_code = ColorCode::new(Color::Yellow, Color::Black);
+    }
+
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.scroll(),
@@ -108,6 +114,9 @@ impl Writer {
 
     pub fn write_string(&mut self, s: &str) {
         if self.is_limited {
+
+
+
             for byte in s.bytes() {
                 match byte {
                     // printable ASCII byte or newline
