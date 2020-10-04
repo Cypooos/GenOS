@@ -1,0 +1,14 @@
+{
+    "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.checkOnSave.allTargets": false, // not sure if this one is needed
+    "rust-analyzer.cargo.target": "targets/x86_64-genos.json",
+    "editor.formatOnSave": true,
+    "editor.rulers": [
+        100
+    ],
+    "rust-analyzer.checkOnSave.overrideCommand": [
+        "make",
+        "check"
+    ],
+    "debug.allowBreakpointsEverywhere": true
+}

@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Build & Run x86_64",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "Build x86_64",
+      "postDebugTask": "Run x86_64 QEMU",
+    },
+    {
+      "name": "Clean",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "Clean",
+    }
+  ]
+}

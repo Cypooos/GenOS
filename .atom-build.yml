@@ -1,0 +1,12 @@
+cmd: start.bat br
+name: GenOS Build & Run (default)
+sh: true
+targets:
+  GenOS Build:
+    cmd: start.bat b
+  GenOS Run:
+    cmd: start.bat r
+  GenOS Test:
+    cmd: start.bat t
+  GenOS Clean:
+    cmd: start.bat c

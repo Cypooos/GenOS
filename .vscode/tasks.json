@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build x86_64",
+      "type": "shell",
+      "command": "start.bat b x86_64-genos.json",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "start.bat c",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "Run x86_64 QEMU",
+      "type": "shell",
+      "windows": {
+        "command": "start.bat r x86_64"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    }
+  ]
+}
