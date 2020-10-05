@@ -27,10 +27,12 @@ exit
 
 :install
 rustup toolchain install nightly
-rustup toolchain add nightly
-cargo +nightly build
-rustup component add rust-src
 rustup update nightly --force
+rustup toolchain add nightly
+rustup override set nightly
+rustup component add rust-src
+cargo +nightly build
+rustup component add llvm-tools-preview
 cargo install bootimage
 
 :build_run

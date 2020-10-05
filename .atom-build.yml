@@ -10,3 +10,5 @@ targets:
     cmd: start.bat t
   GenOS Clean:
     cmd: start.bat c
+  GenOS Install:
+    cmd: start.bat i
