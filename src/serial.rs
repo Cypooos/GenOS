@@ -16,7 +16,8 @@ lazy_static! {
 
 
 #[doc(hidden)]
-pub fn _print(args: ::core::fmt::Arguments) {
+#[cfg(feature = "qemu-connect")]
+pub fn _print(args: core::fmt::Arguments) {
     use core::fmt::Write;
     SERIAL1.lock().write_fmt(args).expect("Printing to serial failed");
 }
@@ -25,6 +26,7 @@ pub fn _print(args: ::core::fmt::Arguments) {
 #[macro_export]
 macro_rules! qemu_print {
     ($($arg:tt)*) => {
+        #[cfg(feature = "qemu-connect")]
         $crate::serial::_print(format_args!($($arg)*));
     };
 }
@@ -32,8 +34,45 @@ macro_rules! qemu_print {
 /// Prints to the host through the serial interface, appending a newline.
 #[macro_export]
 macro_rules! qemu_println {
-    () => ($crate::serial_print!("\n"));
-    ($fmt:expr) => ($crate::serial_print!(concat!($fmt, "\n")));
-    ($fmt:expr, $($arg:tt)*) => ($crate::serial_print!(
+    () => ($crate::qemu_print!("\n"));
+    ($fmt:expr) => ($crate::qemu_print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => ($crate::qemu_print!(
         concat!($fmt, "\n"), $($arg)*));
+}
+
+#[macro_export]
+macro_rules! qemu_debug {
+    () => (
+        #[cfg(feature = "qemu-debug")]
+        $crate::qemu_print!("[DEBUG SET]\n")
+    );
+    ($fmt:expr) => (
+        #[cfg(feature = "qemu-debug")]
+        $crate::qemu_print!(concat!("[DEBUG] ",$fmt, "\n"))
+    );
+    ($fmt:expr, $($arg:tt)*) => (
+        #[cfg(feature = "qemu-debug")]
+        $crate::qemu_print!(concat!("[DEBUG] ",$fmt, "\n"), $($arg)*)
+    );
+    ($($arg:tt)*) => (
+        #[cfg(feature = "qemu-debug")]
+        $crate::qemu_print!("[DEBUG] {}\n", $($arg)*)
+    );
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum QemuExitCode {
+    Success = 0x10,
+    Failed = 0x11,
+}
+
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
 }

@@ -14,9 +14,9 @@ cargo clean
 exit
 
 :test
-cargo test
+cargo test --target targets/x86_64-genos.json
 rem cargo bootimage
-rem qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-rust_genos.bin
+rem qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin -device isa-debug-exit,iobase=0xf4,iosize=0x04 -serial stdio
 exit
 
 
@@ -40,7 +40,7 @@ cargo build --target targets/x86_64-genos.json
 cargo bootimage
 
 :run
-qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin
+qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin -device isa-debug-exit,iobase=0xf4,iosize=0x04 -serial stdio
 exit
 
 

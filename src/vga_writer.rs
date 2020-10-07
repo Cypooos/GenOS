@@ -126,8 +126,10 @@ impl Writer {
                 }
             }
         } else {
-            let mut should_igniore_next:bool = false;
+            let mut should_igniore_next:bool = true;
+            qemu_debug!("general is '{}'",s);
             for colorized in s.split("$") {
+                qemu_debug!("doing '{}'",colorized);
                 if colorized == "" {
                     self.write_byte(b'$');
                     should_igniore_next = true;
@@ -141,8 +143,15 @@ impl Writer {
                     continue
                 }
                 let mut iter = colorized.chars();
-
-                match (iter.next(),iter.next()) {
+                let ia = iter.next();
+                if ia == Some('!') {
+                    self.color_code = DEFAULT_COLOR_CODE;
+                    for byte in iter {
+                        self.write_byte(byte as u8);
+                    }
+                    continue
+                }
+                match (ia,iter.next()) {
                     (Some(a),Some(b)) => {
                         let mut color = [0 ;1];
                         let color_a = i32::from_str_radix((a).encode_utf8(&mut color), 16);
@@ -214,5 +223,4 @@ pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().color_code = DEFAULT_COLOR_CODE;
     WRITER.lock().write_fmt(args).unwrap();
-    WRITER.lock().color_code = DEFAULT_COLOR_CODE;
 }

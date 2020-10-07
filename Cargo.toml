@@ -24,9 +24,15 @@ features = ["spin_no_std"]
 [profile.release]
 panic = "abort"
 
+[features]
+#   #[cfg(feature = "qemu-connect")]
+default = ["qemu-connect", "qemu-debug"]
+qemu-connect = []
+qemu-debug = []
+
 
 [package.metadata.bootimage]
-test-timeout = 5          # (in seconds)
+test-timeout = 600          # (in seconds)
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio"
 ]
