@@ -1,5 +1,5 @@
 [package]
-name = "rust_genos"
+name = "genos"
 version = "0.1.0"
 authors = ["Cypooos <60020572+Cypooos@users.noreply.github.com>"]
 edition = "2018"

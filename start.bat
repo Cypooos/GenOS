@@ -40,7 +40,7 @@ cargo build --target targets/x86_64-genos.json
 cargo bootimage
 
 :run
-qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-rust_genos.bin
+qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin
 exit
 
 
