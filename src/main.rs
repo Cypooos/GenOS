@@ -1,24 +1,26 @@
+// src/main.rs
+
 #![no_std]
 #![no_main]
 
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::testing::test_runner)]
+#![test_runner(genos::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-#[cfg(not(test))]
 use core::panic::PanicInfo;
+use genos::println;
 
-#[macro_use]
-pub mod serial;
-#[macro_use]
-pub mod vga_writer;
+#[no_mangle]
+pub extern "C" fn _start() -> ! {
+    println!("Hello World{}", "!");
 
+    #[cfg(test)]
+    test_main();
 
-#[cfg(test)]
-mod testing;
+    loop {}
+}
 
-
-// our existing panic handler
+/// This function is called on panic.
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -26,14 +28,13 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    println!("booting $afdone !");
-    qemu_println!("QEMU connected");
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    genos::testing::panic_handler(info)
+}
 
-    #[cfg(test)]
-    test_main();
-
-    println!("this is a $0anice string lol");
-    loop {}
+#[test_case]
+fn trivial_assertion() {
+    assert_eq!(1, 1);
 }

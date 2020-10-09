@@ -116,6 +116,9 @@ impl Writer {
     }
 
     pub fn write_string(&mut self, s: &str) {
+        if s == "" {
+            return
+        }
         if self.is_limited {
             for byte in s.bytes() {
                 match byte {
@@ -127,9 +130,7 @@ impl Writer {
             }
         } else {
             let mut should_igniore_next:bool = true;
-            qemu_debug!("general is '{}'",s);
             for colorized in s.split("$") {
-                qemu_debug!("doing '{}'",colorized);
                 if colorized == "" {
                     self.write_byte(b'$');
                     should_igniore_next = true;
@@ -209,8 +210,8 @@ lazy_static! {
 
 #[macro_export]
 macro_rules! println {
-    () => (print!("\n"));
-    ($($arg:tt)*) => (print!("{}\n", format_args!($($arg)*)));
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
 #[macro_export]
