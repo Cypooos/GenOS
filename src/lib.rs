@@ -15,6 +15,8 @@ pub mod serial;
 #[macro_use]
 pub mod vga_writer;
 #[macro_use]
+pub mod gdt;
+#[macro_use]
 pub mod interrupts;
 
 #[macro_use]
@@ -23,10 +25,15 @@ pub mod testing;
 #[cfg(test)]
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    stage1();
     test_main();
     loop {}
 }
 
+pub fn stage1() {
+    gdt::init();
+    interrupts::init_idt();
+}
 
 #[cfg(test)]
 #[panic_handler]
