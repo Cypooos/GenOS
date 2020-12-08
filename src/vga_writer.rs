@@ -5,7 +5,6 @@ use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -28,7 +27,6 @@ pub enum Color {
     White = 15,
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
 pub struct ColorCode(u8);
@@ -49,28 +47,23 @@ pub struct ScreenChar {
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
-pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(14);
+pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(3);
 
 #[repr(transparent)]
 struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
-
-
 pub struct Writer {
     column_position: usize,
     pub color_code: ColorCode,
     buffer: &'static mut Buffer,
-    pub is_limited: bool
+    pub is_limited: bool,
 }
 
-
-
 impl Writer {
-
     #[allow(dead_code)]
-    pub fn set_color(&mut self,front:Color,back:Color) {
+    pub fn set_color(&mut self, front: Color, back: Color) {
         self.color_code = ColorCode((front as u8) << 4 | (back as u8));
     }
 
@@ -117,7 +110,7 @@ impl Writer {
 
     pub fn write_string(&mut self, s: &str) {
         if s == "" {
-            return
+            return;
         }
         if self.is_limited {
             for byte in s.bytes() {
@@ -129,19 +122,20 @@ impl Writer {
                 }
             }
         } else {
-            let mut should_igniore_next:bool = true;
+            let mut should_igniore_next: bool = true;
             for colorized in s.split("$") {
                 if colorized == "" {
                     self.write_byte(b'$');
                     should_igniore_next = true;
-                    continue
+                    continue;
                 }
-                if should_igniore_next { // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
+                if should_igniore_next {
+                    // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
                     should_igniore_next = false;
                     for byte in colorized.chars() {
                         self.write_byte(byte as u8);
                     }
-                    continue
+                    continue;
                 }
                 let mut iter = colorized.chars();
                 let ia = iter.next();
@@ -150,38 +144,37 @@ impl Writer {
                     for byte in iter {
                         self.write_byte(byte as u8);
                     }
-                    continue
+                    continue;
                 }
-                match (ia,iter.next()) {
-                    (Some(a),Some(b)) => {
-                        let mut color = [0 ;1];
+                match (ia, iter.next()) {
+                    (Some(a), Some(b)) => {
+                        let mut color = [0; 1];
                         let color_a = i32::from_str_radix((a).encode_utf8(&mut color), 16);
                         let color_b = i32::from_str_radix((b).encode_utf8(&mut color), 16);
-                        match (color_a,color_b) {
-                            (Ok(ca),Ok(cb)) => {
-                                self.color_code = ColorCode ((ca as u8) <<4 | (cb as u8));
+                        match (color_a, color_b) {
+                            (Ok(ca), Ok(cb)) => {
+                                self.color_code = ColorCode((ca as u8) << 4 | (cb as u8));
                                 for byte in iter {
                                     self.write_byte(byte as u8);
                                 }
-                            },
+                            }
                             _ => {
-                                for byte in colorized.chars(){
+                                for byte in colorized.chars() {
                                     self.write_byte(byte as u8);
                                 }
                             }
                         };
-                    },
+                    }
                     _ => {
                         for byte in colorized.chars() {
                             self.write_byte(byte as u8);
                         }
                     }
                 }
-            };
+            }
         }
     }
 }
-
 
 #[allow(dead_code)]
 pub fn test_print() {
@@ -190,7 +183,6 @@ pub fn test_print() {
     }
 }
 
-
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
@@ -198,13 +190,12 @@ impl fmt::Write for Writer {
     }
 }
 
-
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: DEFAULT_COLOR_CODE,
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-        is_limited:false
+        is_limited: false
     });
 }
 
@@ -223,5 +214,25 @@ macro_rules! print {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().color_code = DEFAULT_COLOR_CODE;
-    WRITER.lock().write_fmt(args).unwrap();
+    use x86_64::instructions::interrupts;
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+
+#[test_case]
+fn test_println_output() {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
+
+    let s = "Some test string that fits on a single line";
+    interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        writeln!(writer, "\n{}", s).expect("writeln failed");
+        for (i, c) in s.chars().enumerate() {
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(char::from(screen_char.ascii_character), c);
+        }
+    });
 }

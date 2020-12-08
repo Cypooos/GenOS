@@ -31,6 +31,16 @@
       "options": {
         "cwd": "${workspaceFolder}/"
       }
+    },
+    {
+      "label": "Test x86_64",
+      "type": "shell",
+      "windows": {
+        "command": "start.bat t x86_64"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
     }
   ]
 }

@@ -1,5 +1,4 @@
 #![no_std]
-
 #![cfg_attr(test, no_main)]
 #![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
@@ -8,7 +7,6 @@
 
 #[allow(unused_imports)]
 use core::panic::PanicInfo;
-
 
 #[macro_use]
 pub mod serial;
@@ -27,16 +25,24 @@ pub mod testing;
 pub extern "C" fn _start() -> ! {
     stage1();
     test_main();
-    loop {}
+    hlt_loop();
+}
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
 
 pub fn stage1() {
     gdt::init();
     interrupts::init_idt();
+    unsafe { interrupts::PICS.lock().initialize() }; // new
+    x86_64::instructions::interrupts::enable(); // new
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    testing::panic_handler(info)
+    testing::panic_handler(info);
+    hlt_loop();
 }

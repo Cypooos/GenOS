@@ -12,13 +12,22 @@
       "postDebugTask": "Run x86_64 QEMU",
     },
     {
-      "name": "Clean",
+      "name": "Clean x86_64",
       "type": "python",
       "request": "launch",
       "program": "none.py",
       "cwd": "${workspaceRoot}",
       "args": [],
       "preLaunchTask": "Clean",
-    }
+    },
+    {
+      "name": "Test x86_64",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "Test x86_64",
+    },
   ]
 }
