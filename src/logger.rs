@@ -54,14 +54,9 @@ macro_rules! done {
 #[macro_export]
 macro_rules! warn {
     ($($arg:tt)*) => ({
-        match $crate::BOOT_LEVEL {
-            0 => (),
-            _ => {
-                $crate::vga_writer::_print(format_args!("[$0EWARN$!] "));
-                $crate::vga_writer::_print(format_args!($($arg)*));
-                $crate::vga_writer::_print(format_args!("\n"));
-            },
-        };
+        $crate::vga_writer::_print(format_args!("[$0EWARN$!] "));
+        $crate::vga_writer::_print(format_args!($($arg)*));
+        $crate::vga_writer::_print(format_args!("\n"));
         $crate::serial::_print(format_args!("[\x1b[0;33mWARN\x1b[0m] "));
         $crate::serial::_print(format_args!($($arg)*));
         $crate::serial::_print(format_args!("\n"));
@@ -71,14 +66,9 @@ macro_rules! warn {
 #[macro_export]
 macro_rules! info {
     ($($arg:tt)*) => ({
-        match $crate::BOOT_LEVEL {
-            0 => (),
-            _ => {
-                $crate::vga_writer::_print(format_args!("[$03INFO$!] "));
-                $crate::vga_writer::_print(format_args!($($arg)*));
-                $crate::vga_writer::_print(format_args!("\n"));
-            },
-        };
+        $crate::vga_writer::_print(format_args!("[$03INFO$!] "));
+        $crate::vga_writer::_print(format_args!($($arg)*));
+        $crate::vga_writer::_print(format_args!("\n"));
         $crate::serial::_print(format_args!("[\x1b[0;36mINFO\x1b[0m] "));
         $crate::serial::_print(format_args!($($arg)*));
         $crate::serial::_print(format_args!("\n"));
