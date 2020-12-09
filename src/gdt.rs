@@ -1,6 +1,8 @@
 use lazy_static::lazy_static;
 use x86_64::VirtAddr;
 
+use super::{error, info};
+
 use x86_64::structures::gdt::{Descriptor, GlobalDescriptorTable, SegmentSelector};
 use x86_64::structures::tss::TaskStateSegment;
 
@@ -42,8 +44,7 @@ lazy_static! {
 }
 
 pub fn init() {
-    qemu_debug!("Initialisation of the GDT");
-    println!("Initialisation of the GDT");
+    info!("Initialisation of the GDT");
     use x86_64::instructions::segmentation::set_cs;
     use x86_64::instructions::tables::load_tss;
 

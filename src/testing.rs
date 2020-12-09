@@ -1,13 +1,10 @@
 use core::panic::PanicInfo;
 
-use crate::serial;
+use crate::{debug, done, error, info, serial};
 
 // our panic handler in test mode
 pub fn panic_handler(info: &PanicInfo) -> ! {
-    qemu_println!("[failed]");
-    println!("[$04failed$!]");
-    qemu_println!("Error: {}", info);
-    println!("Error: {}", info);
+    error!("{}", info);
 
     serial::exit_qemu(serial::QemuExitCode::Failed);
     loop {} // not executed but whatever
@@ -22,24 +19,18 @@ where
     T: Fn(),
 {
     fn test(&self) {
-        print!("{}...    ",core::any::type_name::<T>());
-        qemu_print!("{}...\t\t", core::any::type_name::<T>());
+        debug!("{}...\t\t", core::any::type_name::<T>());
         self();
-        qemu_println!("[ok]");
-        println!("[$0aok$!]");
+        done!("test done");
     }
 }
 
-
-
 pub fn test_runner(tests: &[&dyn Testable]) {
-    qemu_println!("\n\n --- Running {} tests --- ", tests.len());
-    println!("\n\n --- Running {} tests --- ", tests.len());
+    info!("\n\n --- Running {} tests --- ", tests.len());
     for test in tests {
         test.test(); // new
     }
-    println!(" --- All was a succes ! --- \n");
-    qemu_println!(" --- All was a succes ! --- \n");
+    done!(" --- All was a succes ! --- \n");
     serial::exit_qemu(serial::QemuExitCode::Success);
 }
 //

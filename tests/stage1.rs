@@ -4,8 +4,8 @@
 #![test_runner(genos::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use genos::{println,print};
 use core::panic::PanicInfo;
+use genos::{print, println};
 
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
@@ -14,8 +14,7 @@ pub extern "C" fn _start() -> ! {
 }
 
 #[test_case]
-fn boot_empty () {
-}
+fn boot_empty() {}
 
 #[test_case]
 fn print_colored() {
@@ -23,7 +22,6 @@ fn print_colored() {
     print!("$0agreen $$ $ok $!reset $o");
     print!(">");
 }
-
 
 #[test_case]
 fn print_scroll() {

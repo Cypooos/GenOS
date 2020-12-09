@@ -16,17 +16,29 @@ pub mod vga_writer;
 pub mod gdt;
 #[macro_use]
 pub mod interrupts;
+#[macro_use]
+pub mod memory;
+#[macro_use]
+pub mod logger;
 
 #[macro_use]
 pub mod testing;
 
+pub static BOOT_LEVEL: u8 = 1;
+
+use bootloader::{entry_point, BootInfo};
+
 #[cfg(test)]
 #[no_mangle]
-pub extern "C" fn _start() -> ! {
+pub fn entry_fct(t: &'static BootInfo) -> ! {
     stage1();
     test_main();
     hlt_loop();
 }
+
+#[cfg(test)]
+entry_point!(entry_fct);
+
 pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();

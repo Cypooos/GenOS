@@ -29,5 +29,14 @@
       "args": [],
       "preLaunchTask": "Test x86_64",
     },
+    {
+      "name": "Install workspace",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "Install",
+    },
   ]
 }

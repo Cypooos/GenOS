@@ -47,7 +47,7 @@ pub struct ScreenChar {
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
-pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(3);
+pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(7);
 
 #[repr(transparent)]
 struct Buffer {
@@ -200,13 +200,13 @@ lazy_static! {
 }
 
 #[macro_export]
-macro_rules! println {
+macro_rules! vga_println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
 #[macro_export]
-macro_rules! print {
+macro_rules! vga_print {
     ($($arg:tt)*) => ($crate::vga_writer::_print(format_args!($($arg)*)));
 }
 

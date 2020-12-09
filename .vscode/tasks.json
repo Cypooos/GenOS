@@ -41,6 +41,16 @@
       "options": {
         "cwd": "${workspaceFolder}/"
       }
+    },
+    {
+      "label": "Install",
+      "type": "shell",
+      "windows": {
+        "command": "start.bat i"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
     }
   ]
 }
