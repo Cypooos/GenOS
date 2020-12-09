@@ -16,16 +16,47 @@ use bootloader::{entry_point, BootInfo};
 
 #[no_mangle]
 pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
+    use genos::memory::{active_level_4_table, translate_addr};
+    use x86_64::structures::paging::PageTable;
+    use x86_64::VirtAddr;
+
+    info!("main called");
+
     genos::stage1();
-    //trigger a page fault
-    unsafe {
-        *(0xdeadbeef as *mut u64) = 42;
-    };
 
     #[cfg(test)]
     test_main();
 
-    done!("Did not crash");
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
+
+    debug!("Listing pages entries :");
+    for (i, entry) in l4_table.iter().enumerate() {
+        if !entry.is_unused() {
+            debug!("L4 Entry {}: {:?}", i, entry);
+        }
+    }
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+
+    let addresses = [
+        // the identity-mapped vga buffer page
+        0xb8000,
+        // some code page
+        0x201008,
+        // some stack page
+        0x0100_0020_1a10,
+        // virtual address mapped to physical address 0
+        boot_info.physical_memory_offset,
+    ];
+
+    for &address in &addresses {
+        let virt = VirtAddr::new(address);
+        let phys = unsafe { translate_addr(virt, phys_mem_offset) };
+        println!("{:?} -> {:?}", virt, phys);
+    }
+
+    done!("Did not crash :P");
 
     genos::hlt_loop();
 }
@@ -36,10 +67,8 @@ entry_point!(entry_fct);
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    qemu_println!("[PANIC]");
-    qemu_println!("{}", info);
-    vga_println!("[$04PANIC$!]");
-    vga_println!("{}", info);
+    error!("PANIC");
+    error!("{}", info);
     genos::hlt_loop();
 }
 

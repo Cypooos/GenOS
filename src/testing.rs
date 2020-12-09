@@ -4,6 +4,7 @@ use crate::{debug, done, error, info, serial};
 
 // our panic handler in test mode
 pub fn panic_handler(info: &PanicInfo) -> ! {
+    error!("PANIC");
     error!("{}", info);
 
     serial::exit_qemu(serial::QemuExitCode::Failed);

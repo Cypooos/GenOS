@@ -46,10 +46,13 @@ pub fn hlt_loop() -> ! {
 }
 
 pub fn stage1() {
+    debug!("Stage 1...");
     gdt::init();
     interrupts::init_idt();
-    unsafe { interrupts::PICS.lock().initialize() }; // new
-    x86_64::instructions::interrupts::enable(); // new
+    debug!("Enabling interrupts");
+    unsafe { interrupts::PICS.lock().initialize() };
+    x86_64::instructions::interrupts::enable();
+    done!("Stage 1");
 }
 
 #[cfg(test)]

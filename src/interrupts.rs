@@ -1,6 +1,6 @@
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
-use super::{error, info, print};
+use super::{debug, error, print};
 use super::{gdt, hlt_loop};
 use lazy_static::lazy_static;
 
@@ -120,7 +120,7 @@ lazy_static! {
 }
 
 pub fn init_idt() {
-    info!("Initialisation of the IDT");
+    debug!("Initialisation of the IDT");
     IDT.load();
 }
 
