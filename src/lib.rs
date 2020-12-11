@@ -4,9 +4,12 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+#![feature(alloc_error_handler)]
 
 #[allow(unused_imports)]
 use core::panic::PanicInfo;
+
+extern crate alloc;
 
 #[macro_use]
 pub mod serial;
@@ -20,6 +23,8 @@ pub mod interrupts;
 pub mod memory;
 #[macro_use]
 pub mod logger;
+#[macro_use]
+pub mod allocator;
 
 #[macro_use]
 pub mod testing;

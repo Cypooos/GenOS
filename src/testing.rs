@@ -8,7 +8,7 @@ pub fn panic_handler(info: &PanicInfo) -> ! {
     error!("{}", info);
 
     serial::exit_qemu(serial::QemuExitCode::Failed);
-    loop {} // not executed but whatever
+    super::hlt_loop() // not executed but whatever
 }
 
 pub trait Testable {
