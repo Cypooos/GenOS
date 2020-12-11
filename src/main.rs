@@ -6,11 +6,11 @@
 #![test_runner(genos::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use alloc::{boxed::Box, rc::Rc, string::String, vec, vec::Vec};
+use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use core::panic::PanicInfo;
 use genos;
 use genos::allocator;
-use genos::{debug, done, error, info, println, warn}; // new import
+use genos::{debug, done, error, info, println}; // new import
 
 use bootloader::{entry_point, BootInfo};
 
@@ -19,7 +19,6 @@ extern crate alloc;
 #[no_mangle]
 pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     use genos::memory::{active_level_4_table, translate_addr, BootInfoFrameAllocator};
-    use x86_64::structures::paging::PageTable;
     use x86_64::VirtAddr;
 
     info!("main called");
@@ -30,8 +29,6 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     test_main();
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
     let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
 
     debug!("Listing pages entries :");
@@ -41,7 +38,6 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
         }
     }
 
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { genos::memory::init(phys_mem_offset) };
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
@@ -61,8 +57,6 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     }
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
-
-    let x = Box::new(41);
 
     // allocate a number on the heap
     let heap_value = Box::new(41);

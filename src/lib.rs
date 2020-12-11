@@ -31,8 +31,6 @@ pub mod testing;
 
 pub static BOOT_LEVEL: u8 = 1;
 
-use bootloader::{entry_point, BootInfo};
-
 #[cfg(test)]
 #[no_mangle]
 pub fn entry_fct(t: &'static BootInfo) -> ! {

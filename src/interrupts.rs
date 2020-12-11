@@ -51,12 +51,12 @@ impl InterruptIndex {
         hlt_loop();
     }
 
-    extern "x86-interrupt" fn timer(stack_frame: &mut InterruptStackFrame) {
+    extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
         //print!(".");
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
 
-    extern "x86-interrupt" fn keyboard(stack_frame: &mut InterruptStackFrame) {
+    extern "x86-interrupt" fn keyboard(_stack_frame: &mut InterruptStackFrame) {
         use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
         use spin::Mutex;
         use x86_64::instructions::port::Port;

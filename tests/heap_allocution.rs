@@ -53,3 +53,25 @@ fn string_alloc() {
     debug!("{}", out);
     assert_eq!(&out, "Hello World !");
 }
+
+use alloc::vec::Vec;
+
+#[test_case]
+fn large_vec() {
+    let n = 1000;
+    let mut vec = Vec::new();
+    for i in 0..n {
+        vec.push(i);
+    }
+    assert_eq!(vec.iter().sum::<u64>(), (n - 1) * n / 2);
+}
+
+use genos::allocator::HEAP_SIZE;
+// test freed memory
+#[test_case]
+fn many_boxes() {
+    for i in 0..HEAP_SIZE {
+        let x = Box::new(i);
+        assert_eq!(*x, i);
+    }
+}
