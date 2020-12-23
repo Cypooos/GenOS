@@ -25,7 +25,7 @@ install:
 	rustup toolchain install nightly
 	rustup update nightly --force
 	rustup toolchain add nightly
-	rustup override set nighly
+	rustup override set nightly
 	rustup component add rust-src
 	cargo +nightly build
 	rustup component add llvm-tools-preview
