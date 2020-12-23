@@ -1,42 +1,83 @@
+// All laucnh option use a python debugger on a empty program to execute preLaunchTask as debbuggin.
+// THis allow us to use the "F5" shortcut
 {
   "version": "0.2.0",
   "configurations": [
+    // BAT FILE ---------
     {
-      "name": "Build & Run x86_64",
+      "name": "Build & Run x86_64 (bat)",
       "type": "python",
       "request": "launch",
       "program": "none.py",
       "cwd": "${workspaceRoot}",
       "args": [],
-      "preLaunchTask": "Build x86_64",
-      "postDebugTask": "Run x86_64 QEMU",
+      "preLaunchTask": "bat:b:x86_64", // Bat, build, x86_64
+      "postDebugTask": "bat:r:x86_64:QEMU", // Bat, run, x86_64, QUEMI
     },
     {
-      "name": "Clean x86_64",
+      "name": "Clean x86_64 (bat)",
       "type": "python",
       "request": "launch",
       "program": "none.py",
       "cwd": "${workspaceRoot}",
       "args": [],
-      "preLaunchTask": "Clean",
+      "preLaunchTask": "bat:c",
     },
     {
-      "name": "Test x86_64",
+      "name": "Test x86_64 (bat)",
       "type": "python",
       "request": "launch",
       "program": "none.py",
       "cwd": "${workspaceRoot}",
       "args": [],
-      "preLaunchTask": "Test x86_64",
+      "preLaunchTask": "bat:t:x86_64",
     },
     {
-      "name": "Install workspace",
+      "name": "Install workspace (bat)",
       "type": "python",
       "request": "launch",
       "program": "none.py",
       "cwd": "${workspaceRoot}",
       "args": [],
-      "preLaunchTask": "Install",
+      "preLaunchTask": "bat:i",
+    },
+    // JUST FILE ---------
+    {
+      "name": "Build & Run x86_64 (justfile)",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "just:b:x86_64",
+      "postDebugTask": "just:r:x86_64:QEMU",
+    },
+    {
+      "name": "Clean x86_64 (justfile)",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "just:c",
+    },
+    {
+      "name": "Test x86_64 (justfile)",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "just:t:x86_64",
+    },
+    {
+      "name": "Install workspace (justfile)",
+      "type": "python",
+      "request": "launch",
+      "program": "none.py",
+      "cwd": "${workspaceRoot}",
+      "args": [],
+      "preLaunchTask": "just:i",
     },
   ]
 }

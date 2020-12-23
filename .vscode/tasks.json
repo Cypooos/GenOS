@@ -1,8 +1,9 @@
 {
   "version": "2.0.0",
   "tasks": [
+    // BATCH ----
     {
-      "label": "Build x86_64",
+      "label": "bat:b:x86_64",
       "type": "shell",
       "command": "start.bat b x86_64-genos.json",
       "group": {
@@ -14,7 +15,7 @@
       }
     },
     {
-      "label": "Clean",
+      "label": "bat:c",
       "type": "shell",
       "command": "start.bat c",
       "problemMatcher": [],
@@ -23,7 +24,7 @@
       }
     },
     {
-      "label": "Run x86_64 QEMU",
+      "label": "bat:r:x86_64",
       "type": "shell",
       "windows": {
         "command": "start.bat r x86_64"
@@ -33,7 +34,7 @@
       }
     },
     {
-      "label": "Test x86_64",
+      "label": "bat:t:x86_64",
       "type": "shell",
       "windows": {
         "command": "start.bat t x86_64"
@@ -43,10 +44,62 @@
       }
     },
     {
-      "label": "Install",
+      "label": "bat:i",
       "type": "shell",
       "windows": {
         "command": "start.bat i"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    // JUSTFILE ----
+    {
+      "label": "just:b:x86_64",
+      "type": "shell",
+      "command": "just build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "just:c",
+      "type": "shell",
+      "command": "just clean",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "just:r:x86_64",
+      "type": "shell",
+      "windows": {
+        "command": "just run"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "just:t:x86_64",
+      "type": "shell",
+      "windows": {
+        "command": "just test"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/"
+      }
+    },
+    {
+      "label": "just:i",
+      "type": "shell",
+      "windows": {
+        "command": "just install"
       },
       "options": {
         "cwd": "${workspaceFolder}/"
