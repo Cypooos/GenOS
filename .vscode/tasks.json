@@ -78,9 +78,7 @@
     {
       "label": "just:r:x86_64",
       "type": "shell",
-      "windows": {
-        "command": "just run"
-      },
+      "command": "just run",
       "options": {
         "cwd": "${workspaceFolder}/"
       }
@@ -88,9 +86,7 @@
     {
       "label": "just:t:x86_64",
       "type": "shell",
-      "windows": {
-        "command": "just test"
-      },
+      "command": "just test",
       "options": {
         "cwd": "${workspaceFolder}/"
       }

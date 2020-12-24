@@ -50,7 +50,7 @@
       "cwd": "${workspaceRoot}",
       "args": [],
       "preLaunchTask": "just:b:x86_64",
-      "postDebugTask": "just:r:x86_64:QEMU",
+      "postDebugTask": "just:r:x86_64",
     },
     {
       "name": "Clean x86_64 (justfile)",
