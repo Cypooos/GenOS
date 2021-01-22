@@ -32,6 +32,9 @@ pub mod allocator;
 #[macro_use]
 pub mod testing;
 
+#[macro_use]
+pub mod TUI;
+
 pub static BOOT_LEVEL: u8 = 1;
 
 #[cfg(test)]
