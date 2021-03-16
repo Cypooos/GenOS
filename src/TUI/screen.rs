@@ -1,4 +1,5 @@
 
-pub struct Screen {
-    app:String
+pub enum Screens {
+    TestMenu(),
+    DefaultMenu()
 }

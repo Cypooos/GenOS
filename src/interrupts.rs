@@ -1,7 +1,11 @@
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
+// Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
+
+
 use super::{debug, error, print};
 use super::{gdt, hlt_loop};
+use super::TUI::desktop::DESKTOP;
 use lazy_static::lazy_static;
 
 use pic8259_simple::ChainedPics;
@@ -57,28 +61,15 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn keyboard(_stack_frame: &mut InterruptStackFrame) {
-        use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
-        use spin::Mutex;
+
         use x86_64::instructions::port::Port;
-
-        lazy_static! {
-            static ref KEYBOARD: Mutex<Keyboard<layouts::Azerty, ScancodeSet1>> = Mutex::new(
-                Keyboard::new(layouts::Azerty, ScancodeSet1, HandleControl::Ignore)
-            );
-        }
-
-        let mut keyboard = KEYBOARD.lock();
+        
         let mut port = Port::new(0x60);
 
+        let mut desk = DESKTOP.lock();
+
         let scancode: u8 = unsafe { port.read() };
-        if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
-            if let Some(key) = keyboard.process_keyevent(key_event) {
-                match key {
-                    DecodedKey::Unicode(character) => print!("{}", character),
-                    DecodedKey::RawKey(key) => print!("{:?}", key),
-                }
-            }
-        }
+        desk.on_key(scancode);
 
         InterruptIndex::send_bye_signal(InterruptIndex::Keyboard);
     }

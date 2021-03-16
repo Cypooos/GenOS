@@ -21,6 +21,7 @@ exit
 
 
 :build
+cargo clean
 cargo build --target targets/x86_64-genos.json
 cargo bootimage
 exit
@@ -36,11 +37,12 @@ rustup component add llvm-tools-preview
 cargo install bootimage
 
 :build_run
+cargo clean
 cargo build --target targets/x86_64-genos.json
 cargo bootimage
 
 :run
-qemu-system-x86_64 -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin -device isa-debug-exit,iobase=0xf4,iosize=0x04 -serial stdio
+qemu-system-x86_64 -L "C:\Program Files\qemu" -drive format=raw,file=target/x86_64-genos/debug/bootimage-genos.bin -device isa-debug-exit,iobase=0xf4,iosize=0x04 -serial stdio
 exit
 
 
