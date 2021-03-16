@@ -21,7 +21,6 @@ exit
 
 
 :build
-cargo clean
 cargo build --target targets/x86_64-genos.json
 cargo bootimage
 exit
@@ -37,7 +36,6 @@ rustup component add llvm-tools-preview
 cargo install bootimage
 
 :build_run
-cargo clean
 cargo build --target targets/x86_64-genos.json
 cargo bootimage
 

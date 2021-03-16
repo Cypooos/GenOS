@@ -1,10 +1,13 @@
 use crate::TUI::screen::Screens;
 
+use alloc::vec::Vec;
+
 use lazy_static::lazy_static;
 
 
 use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, Keyboard, ScancodeSet1};
 use spin::Mutex;
+
 
 
 lazy_static! {
@@ -16,7 +19,7 @@ lazy_static! {
 
 pub struct DesktopTUI {
     mouse_pos:(u16,u16),
-    active_screen:Screens,
+    active_screen:Screens
 }
 
 
@@ -24,8 +27,8 @@ impl DesktopTUI {
     pub fn on_key(&mut self,scancode:u8 ) {
         
         lazy_static! {
-            static ref KEYBOARD: Mutex<Keyboard<layouts::Azerty, ScancodeSet1>> = Mutex::new(
-                Keyboard::new(layouts::Azerty, ScancodeSet1, HandleControl::Ignore)
+            static ref KEYBOARD: Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> = Mutex::new(
+                Keyboard::new(layouts::Us104Key, ScancodeSet1, HandleControl::Ignore)
             );
         }
 
@@ -35,10 +38,14 @@ impl DesktopTUI {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
 
             match key_event.code {
+                KeyCode::Escape => {
+                    println!("Pause menu");
+                },
                 KeyCode::WindowsLeft => {
-                    println!("WINDOWS LEFT DETECTED");
-                }
+                    println!("Windows menu");
+                },
                 _ => {
+                    print!("{:?}",key_event.code);
                     if let Some(key) = keyboard.process_keyevent(key_event) {
                         match key {
                             DecodedKey::Unicode(character) => print!("{}", character),
