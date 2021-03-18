@@ -36,8 +36,16 @@ pub mod testing;
 
 // #[macro_use]
 // pub mod TUI;
+use lazy_static::lazy_static;
+use spin::Mutex;
 
-pub static BOOT_LEVEL: u8 = 1;
+lazy_static! {
+    pub static ref OS_INFO: Mutex<OS_INFO_STRUCT> = Mutex::new(OS_INFO_STRUCT { boot_level: 0u8 });
+}
+
+pub struct OS_INFO_STRUCT {
+    pub boot_level: u8,
+}
 
 #[cfg(test)]
 #[no_mangle]
@@ -64,6 +72,7 @@ pub fn stage1() {
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
     done!("Stage 1");
+    OS_INFO.lock().boot_level = 1;
 }
 
 #[cfg(test)]
