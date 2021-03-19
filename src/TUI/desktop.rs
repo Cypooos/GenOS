@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, Keyboard, ScancodeSet1};
 use spin::Mutex;
 
-use core::fmt;
+use core::{fmt, intrinsics::write_bytes};
 
 lazy_static! {
     pub static ref DESKTOP: Mutex<DesktopTUI> = Mutex::new(DesktopTUI {
@@ -15,12 +15,29 @@ lazy_static! {
 }
 
 pub struct DesktopTUI {
-    mouse_pos: (u16, u16),
+    mouse_pos: (usize, usize),
     active_screen: Screens,
 }
 
 impl DesktopTUI {
-    pub fn main(&mut self) -> ! {}
+    pub fn draw(&mut self) {
+        match self.active_screen {
+            Screens::TestMenu() => {
+                vga_write!(
+                    0,
+                    0,
+                    "$3FGenOS | $3eScreens::TestMenu()$3F                                      by <Discursif/>"
+                );
+            }
+            Screens::DefaultMenu() => {
+                vga_write!(
+                    0,
+                    0,
+                    "$3FGenOS | $3dScreens::DefaultMenu()$3F                                   by <Discursif/>"
+                );
+            }
+        }
+    }
 
     pub fn print(&self, s: fmt::Arguments) {
         crate::vga_writer::_print(s);

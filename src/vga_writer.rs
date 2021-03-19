@@ -55,7 +55,7 @@ struct Buffer {
 }
 
 pub struct Writer {
-    column_position: usize,
+    position: (usize, usize),
     pub color_code: ColorCode,
     buffer: &'static mut Buffer,
     pub is_limited: bool,
@@ -71,32 +71,37 @@ impl Writer {
         match byte {
             b'\n' => self.scroll(),
             byte => {
-                if self.column_position >= BUFFER_WIDTH {
+                if self.position.0 >= BUFFER_WIDTH {
                     self.scroll();
                 }
 
-                let row = BUFFER_HEIGHT - 1;
-                let col = self.column_position;
+                let row = self.position.1;
+                let col = self.position.0;
 
                 let color_code = self.color_code;
                 self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
                     color_code,
                 });
-                self.column_position += 1;
+                self.position.0 += 1;
             }
         }
     }
 
     fn scroll(&mut self) {
-        for row in 1..BUFFER_HEIGHT {
-            for col in 0..BUFFER_WIDTH {
-                let character = self.buffer.chars[row][col].read();
-                self.buffer.chars[row - 1][col].write(character);
+        if self.position.1 >= BUFFER_HEIGHT - 1 {
+            for row in 1..BUFFER_HEIGHT {
+                for col in 0..BUFFER_WIDTH {
+                    let character = self.buffer.chars[row][col].read();
+                    self.buffer.chars[row - 1][col].write(character);
+                }
             }
+            self.clear_row(BUFFER_HEIGHT - 1);
+            self.position.0 = 0;
+        } else {
+            self.position.0 = 0;
+            self.position.1 += 1;
         }
-        self.clear_row(BUFFER_HEIGHT - 1);
-        self.column_position = 0;
     }
 
     fn clear_row(&mut self, row: usize) {
@@ -109,26 +114,24 @@ impl Writer {
     }
 
     pub fn write_string(&mut self, s: &str) {
+        let mut isTheFirstOne = true;
         if s == "" {
             return;
         }
         if self.is_limited {
             for byte in s.bytes() {
-                match byte {
-                    // printable ASCII byte or newline
-                    0x20..=0x7e | b'\n' => self.write_byte(byte),
-                    // not part of printable ASCII range
-                    _ => self.write_byte(b'?'),
-                }
+                self.write_byte(byte);
             }
         } else {
             let mut should_igniore_next: bool = true;
             for colorized in s.split("$") {
-                if colorized == "" {
+                if colorized == "" && !isTheFirstOne {
                     self.write_byte(b'$');
+
                     should_igniore_next = true;
                     continue;
-                }
+                };
+                isTheFirstOne = false;
                 if should_igniore_next {
                     // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
                     should_igniore_next = false;
@@ -192,7 +195,7 @@ impl fmt::Write for Writer {
 
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
-        column_position: 0,
+        position: (0, 0),
         color_code: DEFAULT_COLOR_CODE,
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
         is_limited: false
@@ -210,14 +213,33 @@ macro_rules! vga_print {
     ($($arg:tt)*) => ($crate::vga_writer::_print(format_args!($($arg)*)));
 }
 
+#[macro_export]
+macro_rules! vga_write {
+    ($x:expr,$y:expr, $($arg:tt)*) => ($crate::vga_writer::_write(($x,$y),format_args!($($arg)*)));
+}
+
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().color_code = DEFAULT_COLOR_CODE;
     use x86_64::instructions::interrupts;
 
     interrupts::without_interrupts(|| {
+        WRITER.lock().color_code = DEFAULT_COLOR_CODE;
         WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+
+#[doc(hidden)]
+pub fn _write(pos: (usize, usize), args: fmt::Arguments) {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().color_code = DEFAULT_COLOR_CODE;
+        let save = WRITER.lock().position;
+        WRITER.lock().position = pos;
+        WRITER.lock().write_fmt(args).unwrap();
+        WRITER.lock().position = save;
     });
 }
 

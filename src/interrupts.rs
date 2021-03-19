@@ -2,10 +2,9 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 
 // Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
 
-
+use super::TUI::desktop::DESKTOP;
 use super::{debug, error, print};
 use super::{gdt, hlt_loop};
-use super::TUI::desktop::DESKTOP;
 use lazy_static::lazy_static;
 
 use pic8259_simple::ChainedPics;
@@ -56,14 +55,17 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
+        unsafe {
+            DESKTOP.force_unlock();
+            DESKTOP.lock().draw();
+        }
         //print!(".");
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
 
     extern "x86-interrupt" fn keyboard(_stack_frame: &mut InterruptStackFrame) {
-
         use x86_64::instructions::port::Port;
-        
+
         let mut port = Port::new(0x60);
 
         let mut desk = DESKTOP.lock();
