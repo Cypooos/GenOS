@@ -55,10 +55,14 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
-        unsafe {
-            DESKTOP.force_unlock();
-            DESKTOP.lock().draw();
-        }
+        use x86_64::instructions::interrupts;
+
+        interrupts::without_interrupts(|| {
+            unsafe {
+                DESKTOP.force_unlock();
+                DESKTOP.lock().draw();
+            };
+        });
         //print!(".");
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
