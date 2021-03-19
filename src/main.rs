@@ -1,5 +1,5 @@
 // src/main.rs
-
+#![feature(renamed_spin_loop)]
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]

@@ -34,6 +34,7 @@ rustup component add rust-src
 cargo +nightly build
 rustup component add llvm-tools-preview
 cargo install bootimage
+rustup default nightly-2020-02-01
 
 :build_run
 cargo build --target targets/x86_64-genos.json
