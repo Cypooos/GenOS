@@ -39,6 +39,8 @@ pub mod testing;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
+pub const VERSION: &str = "vb1.0.0";
+
 lazy_static! {
     pub static ref OS_INFO: Mutex<OsInfoStruct> = Mutex::new(OsInfoStruct { boot_level: 0u8 });
 }
@@ -69,8 +71,10 @@ pub fn stage1() {
     gdt::init();
     interrupts::init_idt();
     debug!("Enabling interrupts");
+    debug!("Version:{}", VERSION);
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
+    vga_writer::WRITER.lock().auto_update = false;
     done!("Stage 1");
     OS_INFO.lock().boot_level = 1;
 }
