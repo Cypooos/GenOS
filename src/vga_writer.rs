@@ -114,7 +114,7 @@ impl Writer {
     }
 
     pub fn write_string(&mut self, s: &str) {
-        let mut isTheFirstOne = true;
+        let mut is_the_first_one: bool = true;
         if s == "" {
             return;
         }
@@ -125,13 +125,13 @@ impl Writer {
         } else {
             let mut should_igniore_next: bool = true;
             for colorized in s.split("$") {
-                if colorized == "" && !isTheFirstOne {
+                if colorized == "" && !is_the_first_one {
                     self.write_byte(b'$');
 
                     should_igniore_next = true;
                     continue;
                 };
-                isTheFirstOne = false;
+                is_the_first_one = false;
                 if should_igniore_next {
                     // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
                     should_igniore_next = false;

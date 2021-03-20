@@ -1,7 +1,6 @@
 #![no_std]
 #![cfg_attr(test, no_main)]
 #![feature(abi_x86_interrupt)]
-#![feature(renamed_spin_loop)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -30,21 +29,21 @@ pub mod logger;
 #[macro_use]
 pub mod allocator;
 #[macro_use]
-pub mod TUI;
+pub mod tui;
 
 #[macro_use]
 pub mod testing;
 
 // #[macro_use]
-// pub mod TUI;
+// pub mod tui;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
 lazy_static! {
-    pub static ref OS_INFO: Mutex<OS_INFO_STRUCT> = Mutex::new(OS_INFO_STRUCT { boot_level: 0u8 });
+    pub static ref OS_INFO: Mutex<OsInfoStruct> = Mutex::new(OsInfoStruct { boot_level: 0u8 });
 }
 
-pub struct OS_INFO_STRUCT {
+pub struct OsInfoStruct {
     pub boot_level: u8,
 }
 

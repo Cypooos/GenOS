@@ -1,5 +1,4 @@
 // src/main.rs
-#![feature(renamed_spin_loop)]
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
@@ -24,6 +23,10 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     info!("main called");
 
     genos::stage1();
+
+    debug!("Test");
+
+    genos::hlt_loop();
 
     #[cfg(test)]
     test_main();

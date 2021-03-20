@@ -2,8 +2,8 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 
 // Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
 
-use super::TUI::desktop::DESKTOP;
-use super::{debug, error, print};
+use super::tui::desktop::DESKTOP;
+use super::{debug, error};
 use super::{gdt, hlt_loop};
 use lazy_static::lazy_static;
 
@@ -58,26 +58,29 @@ impl InterruptIndex {
         use x86_64::instructions::interrupts;
 
         interrupts::without_interrupts(|| {
-            unsafe {
-                DESKTOP.force_unlock();
-                DESKTOP.lock().draw();
-            };
+            // apparamment un interrupt peut arriver lors d'un autre (une histoire d'odre de rpiorité je crois)
+            DESKTOP.lock().draw();
         });
-        //print!(".");
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
 
     extern "x86-interrupt" fn keyboard(_stack_frame: &mut InterruptStackFrame) {
+        use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
-        let mut port = Port::new(0x60);
+        interrupts::without_interrupts(|| {
+            // lui blocque tout ?
 
-        let mut desk = DESKTOP.lock();
+            let mut port = Port::new(0x60);
 
-        let scancode: u8 = unsafe { port.read() };
-        desk.on_key(scancode);
+            let mut desk = DESKTOP.lock();
 
+            let scancode: u8 = unsafe { port.read() };
+
+            desk.on_key(scancode);
+        });
         InterruptIndex::send_bye_signal(InterruptIndex::Keyboard);
+        return;
     }
 
     extern "x86-interrupt" fn breakpoint(stack_frame: &mut InterruptStackFrame) {
@@ -108,7 +111,6 @@ lazy_static! {
         idt.page_fault.set_handler_fn(InterruptIndex::page_fault);
 
         // interupts
-
 
         idt[InterruptIndex::Timer.as_usize()].set_handler_fn(InterruptIndex::timer);
         idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(InterruptIndex::keyboard);

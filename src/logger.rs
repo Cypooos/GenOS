@@ -23,9 +23,9 @@ macro_rules! debug {
                 $crate::vga_writer::_print(format_args!("\n"));
             },
             1 => {
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!("[$05DBUG$!] "));
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!($($arg)*));
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("\n")));
+                $crate::tui::desktop::_print(format_args!("[$05DBUG$!] "));
+                $crate::tui::desktop::_print(format_args!($($arg)*));
+                $crate::tui::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
@@ -48,9 +48,9 @@ macro_rules! error {
                 $crate::vga_writer::_print(format_args!("\n"));
             },
             1 => {
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("[$04ERRO$!] ")));
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!($($arg)*));
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("\n")));
+               $crate::tui::desktop::_print((format_args!("[$04ERRO$!] ")));
+               $crate::tui::desktop::_print(format_args!($($arg)*));
+               $crate::tui::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
@@ -73,9 +73,9 @@ macro_rules! done {
                 $crate::vga_writer::_print(format_args!("\n"));
             },
             1 => {
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("[$0ADONE$!] ")));
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!($($arg)*));
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("\n")));
+                $crate::tui::desktop::_print((format_args!("[$0ADONE$!] ")));
+                $crate::tui::desktop::_print(format_args!($($arg)*));
+                $crate::tui::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
@@ -98,9 +98,9 @@ macro_rules! warn {
                 $crate::vga_writer::_print(format_args!("\n"));
             },
             1 => {
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("[$0EWARN$!] ")));
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!($($arg)*));
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("\n")));
+                $crate::tui::desktop::_print((format_args!("[$0EWARN$!] ")));
+                $crate::tui::desktop::_print(format_args!($($arg)*));
+                $crate::tui::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
@@ -123,9 +123,9 @@ macro_rules! info {
                 $crate::vga_writer::_print(format_args!("\n"));
             },
             1 => {
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("[$03INFO$!] ")));
-                $crate::TUI::desktop::DESKTOP.lock().print(format_args!($($arg)*));
-                $crate::TUI::desktop::DESKTOP.lock().print((format_args!("\n")));
+                $crate::tui::desktop::_print((format_args!("[$03INFO$!] ")));
+                $crate::tui::desktop::_print(format_args!($($arg)*));
+                $crate::tui::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
