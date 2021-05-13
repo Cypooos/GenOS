@@ -12,36 +12,41 @@ use alloc::{
     vec::Vec,
 };
 
-const LOGGING_SIZE: usize = 24;
+use volatile::Volatile;
+
+use crate::vga_writer;
+
+lazy_static! {
+    static ref DESKTOP_LOGGER: [[vga_writer::ScreenChar; vga_writer::BUFFER_WIDTH]; vga_writer::BUFFER_HEIGHT] =
+        [[vga_writer::DEFAULT_SCREENCHAR; vga_writer::BUFFER_WIDTH]; vga_writer::BUFFER_HEIGHT];
+}
 
 lazy_static! {
     pub static ref DESKTOP: Mutex<DesktopTUI> = Mutex::new(DesktopTUI {
         mouse_pos: (5, 5),
-        active_screen: Screens::LoggingScreen,
-        logging: [&""; 24],
-        logging_line: 0,
+        active_screen: Screens::DrawScreen,
     });
 }
 
 pub struct DesktopTUI {
     mouse_pos: (usize, usize),
     active_screen: Screens,
-    logging: [&'static str; LOGGING_SIZE],
-    logging_line: usize,
 }
 
 impl fmt::Write for DesktopTUI {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         qemu_print!(" WRITING A STRING");
-        if (self.logging_line == LOGGING_SIZE) {
+        vga_print!("{}", s);
+        /*if (self.logging_line == LOGGING_SIZE) {
             for row in 1..LOGGING_SIZE {
                 self.logging[row - 1] = self.logging[LOGGING_SIZE];
             }
         } else {
             self.logging_line += 1;
         }
-        self.logging[self.logging_line] = s.copy();
+        self.logging[self.logging_line] = s;
         qemu_print!(" WRITING DONE");
+        */
         Ok(())
     }
 }
@@ -58,14 +63,6 @@ impl DesktopTUI {
         // vga_write!(0, 1, "$3f{}", self.count);
 
         match self.active_screen {
-            Screens::LoggingScreen => {
-                // print les logs
-                let mut counter = 0;
-                for ele in &self.logging {
-                    vga_write!(0, counter, "{}", ele);
-                    counter += 1;
-                }
-            }
             Screens::DebugScreen => {
                 vga_write!(20, 5, "$3F{: ^40}", "Menu Debug");
                 vga_write!(20, 6, "$3F{: ^40}", "");
@@ -100,7 +97,7 @@ impl DesktopTUI {
                 if key_event.state == KeyState::Down {
                     self.active_screen = Screens::DebugScreen;
                 } else {
-                    self.active_screen = Screens::LoggingScreen;
+                    self.active_screen = Screens::DrawScreen;
                 };
                 return;
             }

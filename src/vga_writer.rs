@@ -41,16 +41,20 @@ impl ColorCode {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 pub struct ScreenChar {
-    ascii_character: u8,
-    color_code: ColorCode,
+    pub ascii_character: u8,
+    pub color_code: ColorCode,
 }
 
-const BUFFER_HEIGHT: usize = 25;
-const BUFFER_WIDTH: usize = 80;
+pub const BUFFER_HEIGHT: usize = 25;
+pub const BUFFER_WIDTH: usize = 80;
 pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(7);
+pub const DEFAULT_SCREENCHAR: ScreenChar = ScreenChar {
+    ascii_character: ' ' as u8,
+    color_code: DEFAULT_COLOR_CODE,
+};
 
 #[repr(transparent)]
-struct Buffer {
+pub struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
