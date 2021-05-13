@@ -6,32 +6,41 @@ use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, KeyState, Keyboar
 use spin::Mutex;
 
 use core::fmt;
-use volatile::Volatile;
 
 use alloc::{
     string::{String, ToString},
     vec::Vec,
 };
 
-use crate::vga_writer;
+const LOGGING_SIZE: usize = 24;
 
 lazy_static! {
     pub static ref DESKTOP: Mutex<DesktopTUI> = Mutex::new(DesktopTUI {
         mouse_pos: (5, 5),
         active_screen: Screens::LoggingScreen,
+        logging: [&""; 24],
+        logging_line: 0,
     });
 }
 
 pub struct DesktopTUI {
     mouse_pos: (usize, usize),
     active_screen: Screens,
+    logging: [&'static str; LOGGING_SIZE],
+    logging_line: usize,
 }
 
 impl fmt::Write for DesktopTUI {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         qemu_print!(" WRITING A STRING");
-        //self.logger.write_string(s);
-        //self.logging[self.logging_line] = s.copy();
+        if (self.logging_line == LOGGING_SIZE) {
+            for row in 1..LOGGING_SIZE {
+                self.logging[row - 1] = self.logging[LOGGING_SIZE];
+            }
+        } else {
+            self.logging_line += 1;
+        }
+        self.logging[self.logging_line] = s.copy();
         qemu_print!(" WRITING DONE");
         Ok(())
     }
@@ -40,12 +49,22 @@ impl fmt::Write for DesktopTUI {
 impl DesktopTUI {
     pub fn draw(&mut self) {
         // Pas de print! car ça apelle DESKTOPTUI.draw
+        vga_write!(
+            0,
+            0,
+            "$3F                                                                    <Discursif/>"
+        );
+        vga_write!(0, 0, "$3FGenOS vb1.0.0 | $3e{:?}", self.active_screen);
+        // vga_write!(0, 1, "$3f{}", self.count);
 
         match self.active_screen {
             Screens::LoggingScreen => {
                 // print les logs
-                vga_write!(0, 5, "UwU");
-                //vga_writer::WRITER.lock().buffer = DESKTOP_LOGGER.lock().buffer;
+                let mut counter = 0;
+                for ele in &self.logging {
+                    vga_write!(0, counter, "{}", ele);
+                    counter += 1;
+                }
             }
             Screens::DebugScreen => {
                 vga_write!(20, 5, "$3F{: ^40}", "Menu Debug");
@@ -58,21 +77,11 @@ impl DesktopTUI {
             Screens::DrawScreen => {}
         }
 
-        // TOP UI
-        vga_write!(
-            0,
-            0,
-            "$3F                                                                    <Discursif/>"
-        );
-        vga_write!(
-            0,
-            0,
-            "$3FGenOS {} | $3e{:?}",
-            crate::VERSION,
-            self.active_screen
-        );
-
-        vga_writer::WRITER.lock().update();
+        // if self.held.contains(&KeyCode::Tab) {
+        //     vga_write!(3, 3, "$3FTAB DETECTED");
+        // } else {
+        //     vga_write!(3, 3, "$3FNOT DETECTED");
+        // }
     }
 
     // Le on_key ne retourne pas

@@ -45,26 +45,20 @@ pub struct ScreenChar {
     color_code: ColorCode,
 }
 
-pub const BUFFER_HEIGHT: usize = 25;
-pub const BUFFER_WIDTH: usize = 80;
+const BUFFER_HEIGHT: usize = 25;
+const BUFFER_WIDTH: usize = 80;
 pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode(7);
-pub const DEFAULT_SCREEN_CHAR: ScreenChar = ScreenChar {
-    ascii_character: ' ' as u8,
-    color_code: DEFAULT_COLOR_CODE,
-};
 
 #[repr(transparent)]
-pub struct Buffer {
+struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 pub struct Writer {
     position: (usize, usize),
     pub color_code: ColorCode,
-    pub draw_buffer: &'static mut Buffer,
-    pub print_buffer: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    buffer: &'static mut Buffer,
     pub is_limited: bool,
-    pub auto_update: bool,
 }
 
 impl Writer {
@@ -84,37 +78,12 @@ impl Writer {
                 let row = self.position.1;
                 let col = self.position.0;
 
-                self.print_buffer[row][col].ascii_character = byte;
-                self.print_buffer[row][col].color_code = self.color_code;
-                self.position.0 += 1;
-            }
-        }
-    }
-
-    pub fn write_byte_draw(&mut self, byte: u8) {
-        match byte {
-            b'\n' => self.scroll(),
-            byte => {
-                if self.position.0 >= BUFFER_WIDTH {
-                    self.position.0 = 0;
-                }
-
-                let row = self.position.1;
-                let col = self.position.0;
-
-                self.draw_buffer.chars[row][col].write(ScreenChar {
+                let color_code = self.color_code;
+                self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
-                    color_code: self.color_code,
+                    color_code,
                 });
                 self.position.0 += 1;
-            }
-        }
-    }
-
-    pub fn update(&mut self) {
-        for row in 0..BUFFER_HEIGHT {
-            for col in 0..BUFFER_WIDTH {
-                self.draw_buffer.chars[row][col].write(self.print_buffer[row][col]);
             }
         }
     }
@@ -123,8 +92,8 @@ impl Writer {
         if self.position.1 >= BUFFER_HEIGHT - 1 {
             for row in 1..BUFFER_HEIGHT {
                 for col in 0..BUFFER_WIDTH {
-                    let character = self.print_buffer[row][col];
-                    self.print_buffer[row - 1][col] = character;
+                    let character = self.buffer.chars[row][col].read();
+                    self.buffer.chars[row - 1][col].write(character);
                 }
             }
             self.clear_row(BUFFER_HEIGHT - 1);
@@ -137,7 +106,10 @@ impl Writer {
 
     fn clear_row(&mut self, row: usize) {
         for col in 0..BUFFER_WIDTH {
-            self.print_buffer[row][col] = DEFAULT_SCREEN_CHAR;
+            self.buffer.chars[row][col].write(ScreenChar {
+                ascii_character: b' ',
+                color_code: DEFAULT_COLOR_CODE,
+            });
         }
     }
 
@@ -204,77 +176,6 @@ impl Writer {
                 }
             }
         }
-        if self.auto_update {
-            self.update()
-        }
-    }
-
-    pub fn write_string_draw(&mut self, s: &str) {
-        let mut is_the_first_one: bool = true;
-        if s == "" {
-            return;
-        }
-        if self.is_limited {
-            for byte in s.bytes() {
-                self.write_byte(byte);
-            }
-        } else {
-            let mut should_igniore_next: bool = true;
-            for colorized in s.split("$") {
-                if colorized == "" && !is_the_first_one {
-                    self.write_byte(b'$');
-
-                    should_igniore_next = true;
-                    continue;
-                };
-                is_the_first_one = false;
-                if should_igniore_next {
-                    // in case of $$a0 , empty one will set should_igniore_next, and the next one will print (aa) and will not be interpreted
-                    should_igniore_next = false;
-                    for byte in colorized.chars() {
-                        self.write_byte(byte as u8);
-                    }
-                    continue;
-                }
-                let mut iter = colorized.chars();
-                let ia = iter.next();
-                if ia == Some('!') {
-                    self.color_code = DEFAULT_COLOR_CODE;
-                    for byte in iter {
-                        self.write_byte(byte as u8);
-                    }
-                    continue;
-                }
-                match (ia, iter.next()) {
-                    (Some(a), Some(b)) => {
-                        let mut color = [0; 1];
-                        let color_a = i32::from_str_radix((a).encode_utf8(&mut color), 16);
-                        let color_b = i32::from_str_radix((b).encode_utf8(&mut color), 16);
-                        match (color_a, color_b) {
-                            (Ok(ca), Ok(cb)) => {
-                                self.color_code = ColorCode((ca as u8) << 4 | (cb as u8));
-                                for byte in iter {
-                                    self.write_byte(byte as u8);
-                                }
-                            }
-                            _ => {
-                                for byte in colorized.chars() {
-                                    self.write_byte(byte as u8);
-                                }
-                            }
-                        };
-                    }
-                    _ => {
-                        for byte in colorized.chars() {
-                            self.write_byte(byte as u8);
-                        }
-                    }
-                }
-            }
-        }
-        if self.auto_update {
-            self.update()
-        }
     }
 }
 
@@ -296,10 +197,8 @@ lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         position: (0, 0),
         color_code: DEFAULT_COLOR_CODE,
-        draw_buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-        print_buffer: [[DEFAULT_SCREEN_CHAR; BUFFER_WIDTH]; BUFFER_HEIGHT],
-        is_limited: false,
-        auto_update: true,
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+        is_limited: false
     });
 }
 
@@ -354,7 +253,7 @@ fn test_println_output() {
         let mut writer = WRITER.lock();
         writeln!(writer, "\n{}", s).expect("writeln failed");
         for (i, c) in s.chars().enumerate() {
-            let screen_char = writer.draw_buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
             assert_eq!(char::from(screen_char.ascii_character), c);
         }
     });
