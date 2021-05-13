@@ -29,7 +29,7 @@ pub mod logger;
 #[macro_use]
 pub mod allocator;
 #[macro_use]
-pub mod tui;
+pub mod game;
 
 #[macro_use]
 pub mod testing;

@@ -11,6 +11,8 @@ use genos;
 use genos::allocator;
 use genos::{debug, done, error, info, println}; // new import
 
+use genos::game::desktop::{DESKTOP, NEED_REFRESH};
+
 use bootloader::{entry_point, BootInfo};
 
 extern crate alloc;
@@ -24,7 +26,17 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
 
     genos::stage1();
 
-    debug!("Test");
+    // loop {
+    //     if unsafe { NEED_REFRESH } {
+    //         use x86_64::instructions::interrupts;
+    //         interrupts::without_interrupts(|| {
+    //             DESKTOP.lock().reload();
+    //         });
+    //     } else {
+    //         debug!("no refresh")
+    //     }
+    // }
+    // done!("OS executed");
 
     genos::hlt_loop();
 

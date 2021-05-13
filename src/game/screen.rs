@@ -1,5 +1,5 @@
 #[derive(Debug)]
 pub enum Screens {
-    DebugScreen,
-    DrawScreen,
+    MainMenu,
+    Menu,
 }

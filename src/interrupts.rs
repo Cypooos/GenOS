@@ -2,7 +2,7 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 
 // Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
 
-use super::tui::desktop::DESKTOP;
+use super::game::desktop::DESKTOP;
 use super::{debug, error};
 use super::{gdt, hlt_loop};
 use lazy_static::lazy_static;
@@ -57,9 +57,10 @@ impl InterruptIndex {
     extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
         use x86_64::instructions::interrupts;
 
+        debug!("x86-int timer");
+
         interrupts::without_interrupts(|| {
-            // apparamment un interrupt peut arriver lors d'un autre (une histoire d'odre de rpiorité je crois)
-            DESKTOP.lock().draw();
+            DESKTOP.lock().time_interrupt();
         });
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
@@ -68,9 +69,9 @@ impl InterruptIndex {
         use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
-        interrupts::without_interrupts(|| {
-            // lui blocque tout ?
+        debug!("x86-int key");
 
+        interrupts::without_interrupts(|| {
             let mut port = Port::new(0x60);
 
             let mut desk = DESKTOP.lock();
