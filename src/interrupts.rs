@@ -24,6 +24,7 @@ pub enum InterruptIndex {
     PageFault,
     Timer = PIC_1_OFFSET,
     Keyboard = PIC_1_OFFSET + 1,
+    Mouse = PIC_1_OFFSET + 6,
 }
 
 impl InterruptIndex {
@@ -57,10 +58,9 @@ impl InterruptIndex {
     extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
         use x86_64::instructions::interrupts;
 
-        debug!("x86-int timer");
-
         interrupts::without_interrupts(|| {
-            DESKTOP.lock().time_interrupt();
+            unsafe { DESKTOP.force_unlock() };
+            DESKTOP.lock().int_time();
         });
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
@@ -69,16 +69,15 @@ impl InterruptIndex {
         use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
-        debug!("x86-int key");
-
         interrupts::without_interrupts(|| {
             let mut port = Port::new(0x60);
+            unsafe { DESKTOP.force_unlock() };
 
             let mut desk = DESKTOP.lock();
 
             let scancode: u8 = unsafe { port.read() };
 
-            desk.on_key(scancode);
+            desk.int_key(scancode);
         });
         InterruptIndex::send_bye_signal(InterruptIndex::Keyboard);
         return;
@@ -112,7 +111,6 @@ lazy_static! {
         idt.page_fault.set_handler_fn(InterruptIndex::page_fault);
 
         // interupts
-
         idt[InterruptIndex::Timer.as_usize()].set_handler_fn(InterruptIndex::timer);
         idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(InterruptIndex::keyboard);
         idt
