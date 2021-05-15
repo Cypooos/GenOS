@@ -2,11 +2,19 @@ use super::desktop;
 
 pub mod levels;
 pub mod menus;
+pub mod screens;
 
-// pub trait Screenable<T: Screenable> {
-//     fn draw(&mut self, info: &mut desktop::DesktopTUI) {}
-//     fn on_key(&mut self, info: &mut desktop::DesktopTUI) {}
-// }
+use alloc::boxed::Box;
+
+pub trait Screenable: core::fmt::Debug + Send + Sync {
+    fn init(&mut self) {}
+    fn draw(&mut self) -> Option<screens::Screen> {
+        None
+    }
+    fn on_key(&mut self, scancode: u8) -> Option<screens::Screen> {
+        None
+    }
+}
 
 //match self.active_screen.draw() {
 //    Some(e) => self.active_screen = e,

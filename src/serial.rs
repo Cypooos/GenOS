@@ -1,9 +1,8 @@
-
-use uart_16550::SerialPort;
-use spin::Mutex;
 use lazy_static::lazy_static;
+use spin::Mutex;
+use uart_16550::SerialPort;
 
-const QEMU_PORT :u16 = 0x3F8;
+const QEMU_PORT: u16 = 0x3F8;
 
 lazy_static! {
     pub static ref SERIAL1: Mutex<SerialPort> = {
@@ -13,13 +12,14 @@ lazy_static! {
     };
 }
 
-
-
 #[doc(hidden)]
 #[cfg(feature = "qemu-connect")]
 pub fn _print(args: core::fmt::Arguments) {
     use core::fmt::Write;
-    SERIAL1.lock().write_fmt(args).expect("Printing to serial failed");
+    SERIAL1
+        .lock()
+        .write_fmt(args)
+        .expect("Printing to serial failed");
 }
 
 /// Prints to the host through the serial interface.
@@ -59,7 +59,6 @@ macro_rules! qemu_debug {
         $crate::qemu_print!("[DEBUG] {}\n", $($arg)*)
     );
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]

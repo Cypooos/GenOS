@@ -71,8 +71,21 @@ pub fn stage1() {
     debug!("Enabling interrupts");
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
+
+    debug!("Disableling Cursor");
+
+    // Exit cursor
+    // use x86_64::instructions::port::Port;
+    // unsafe {
+    //     let mut port = Port::new(0x3D4);
+    //     port.write(0x0A as u32);
+    //     let mut port = Port::new(0x3D5);
+    //     port.write(0x20 as u32);
+    // }
+    // TODO:
+    //OS_INFO.lock().boot_level = 1;
+    qemu_debug!("Test");
     done!("Stage 1");
-    OS_INFO.lock().boot_level = 1;
 }
 
 #[cfg(test)]

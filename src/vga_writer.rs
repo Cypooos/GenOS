@@ -9,22 +9,22 @@ use spin::Mutex;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Color {
-    Black = 0,
-    Blue = 1,
-    Green = 2,
-    Cyan = 3,
-    Red = 4,
-    Magenta = 5,
-    Brown = 6,
-    LightGray = 7,
-    DarkGray = 8,
-    LightBlue = 9,
-    LightGreen = 10,
-    LightCyan = 11,
-    LightRed = 12,
-    Pink = 13,
-    Yellow = 14,
-    White = 15,
+    Black = 0,       // 0
+    Blue = 1,        // 1
+    Green = 2,       // 2
+    Cyan = 3,        // 3
+    Red = 4,         // 4
+    Magenta = 5,     // 5
+    Brown = 6,       // 6
+    LightGray = 7,   // 7
+    DarkGray = 8,    // 8
+    LightBlue = 9,   // 9
+    LightGreen = 10, // A
+    LightCyan = 11,  // B
+    LightRed = 12,   // C
+    Pink = 13,       // D
+    Yellow = 14,     // E
+    White = 15,      // F
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -71,6 +71,13 @@ impl Writer {
         self.color_code = ColorCode((front as u8) << 4 | (back as u8));
     }
 
+    pub fn clear(&mut self) {
+        for row in 0..BUFFER_HEIGHT {
+            self.clear_row(row);
+        }
+        self.position = (0, 0);
+    }
+
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.scroll(),
@@ -110,10 +117,7 @@ impl Writer {
 
     fn clear_row(&mut self, row: usize) {
         for col in 0..BUFFER_WIDTH {
-            self.buffer.chars[row][col].write(ScreenChar {
-                ascii_character: b' ',
-                color_code: DEFAULT_COLOR_CODE,
-            });
+            self.buffer.chars[row][col].write(DEFAULT_SCREENCHAR);
         }
     }
 

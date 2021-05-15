@@ -6,7 +6,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use genos::allocator;
+use genos::{allocator, game::desktop::DESKTOP};
 use genos::{debug, done, error, info}; // new import
 
 use bootloader::{entry_point, BootInfo};
@@ -22,19 +22,25 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
 
     genos::stage1();
 
-    #[cfg(test)]
-    test_main();
+    use x86_64::instructions::interrupts;
+    interrupts::without_interrupts(|| {
+        #[cfg(test)]
+        test_main();
 
-    // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
-    // MEMENTO MORI
-    debug!("Initialisation of the allocator");
+        // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
+        // MEMENTO MORI
+        debug!("Initialisation of the allocator");
 
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let mut mapper = unsafe { genos::memory::init(phys_mem_offset) };
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
-    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+        let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+        let mut mapper = unsafe { genos::memory::init(phys_mem_offset) };
+        let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+        allocator::init_heap(&mut mapper, &mut frame_allocator)
+            .expect("heap initialization failed");
 
-    done!("OS launch");
+        DESKTOP.lock().start();
+
+        done!("OS launch");
+    });
 
     genos::hlt_loop();
 }
@@ -45,8 +51,7 @@ entry_point!(entry_fct);
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    error!("PANIC");
-    error!("{}", info);
+    error!("PANIC:\n{}", info);
     genos::hlt_loop();
 }
 
