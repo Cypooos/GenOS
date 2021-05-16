@@ -1,12 +1,6 @@
 use super::{screens::Screen, Screenable};
-use crate::{vga_writer};
-use alloc::{
-    boxed::Box,
-    format,
-    string::{String, ToString},
-    vec::Vec,
-};
-
+use crate::vga_writer;
+use alloc::string::String;
 
 use pc_keyboard::{KeyEvent, KeyState};
 

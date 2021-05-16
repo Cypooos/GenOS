@@ -59,7 +59,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     genos::testing::panic_handler(info);
-    genos::hlt_loop();
+    // genos::hlt_loop();
 }
 
 #[test_case]
