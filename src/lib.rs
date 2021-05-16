@@ -49,7 +49,7 @@ pub struct OsInfoStruct {
 
 #[cfg(test)]
 #[no_mangle]
-pub fn entry_fct(t: &'static BootInfo) -> ! {
+pub fn entry_fct(_t: &'static BootInfo) -> ! {
     stage1();
     test_main();
     hlt_loop();

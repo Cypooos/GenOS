@@ -1,17 +1,15 @@
 use lazy_static::lazy_static;
 
-use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, KeyState, Keyboard, ScancodeSet1};
+use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use spin::Mutex;
 
 use core::{fmt, usize};
 
 use alloc::{
     boxed::Box,
-    string::{String, ToString},
-    vec::Vec,
 };
 
-use volatile::Volatile;
+
 
 use crate::{
     game::screens::{
@@ -114,8 +112,8 @@ impl DesktopTUI {
 
 #[doc(hidden)]
 pub fn _print(_args: fmt::Arguments) {
-    use core::fmt::Write;
-    use x86_64::instructions::interrupts;
+    
+    
 
     // interrupts::without_interrupts(|| {
     //     qemu_print!("ohdqiujhfs");

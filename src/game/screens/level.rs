@@ -36,8 +36,8 @@ pub struct Level {
     pub choices: Vec<LevelChoice>,
     pub next: Screen,
     pub back: Screen,
-    selected: usize,
-    page: usize,
+    _selected: usize,
+    _page: usize,
 }
 
 impl Level {
@@ -58,8 +58,8 @@ impl Level {
             choices,
             next,
             back,
-            selected: 0,
-            page: 0,
+            _selected: 0,
+            _page: 0,
         }
     }
 }

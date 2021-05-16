@@ -1,5 +1,5 @@
 use super::{screens::Screen, Screenable};
-use crate::{vga_writer, vga_writer::WRITER};
+use crate::{vga_writer};
 use alloc::{
     boxed::Box,
     format,
@@ -7,8 +7,8 @@ use alloc::{
     vec::Vec,
 };
 
-use lazy_static::lazy_static;
-use pc_keyboard::{KeyCode, KeyEvent, KeyState};
+
+use pc_keyboard::{KeyEvent, KeyState};
 
 const TEXT_SPEED: usize = 2;
 const TEXT_LENGTH: usize = 30;
