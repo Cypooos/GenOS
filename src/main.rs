@@ -20,10 +20,10 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
 
     info!("main called");
 
-    genos::stage1();
-
     use x86_64::instructions::interrupts;
     interrupts::without_interrupts(|| {
+        genos::stage1();
+
         #[cfg(test)]
         test_main();
 
@@ -37,9 +37,9 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
         allocator::init_heap(&mut mapper, &mut frame_allocator)
             .expect("heap initialization failed");
 
-        DESKTOP.lock().start();
-
         done!("OS launch");
+
+        DESKTOP.lock().start();
     });
 
     genos::hlt_loop();

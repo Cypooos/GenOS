@@ -1,17 +1,22 @@
 use super::desktop;
 
-pub mod levels;
+pub mod choke_talk;
+pub mod file_explorer;
+pub mod level;
 pub mod menus;
 pub mod screens;
+pub mod visual;
 
-use alloc::boxed::Box;
+//mod template;
 
-pub trait Screenable: core::fmt::Debug + Send + Sync {
+use pc_keyboard::KeyEvent;
+
+pub trait Screenable: Send + Sync {
     fn init(&mut self) {}
-    fn draw(&mut self) -> Option<screens::Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<screens::Screen> {
         None
     }
-    fn on_key(&mut self, scancode: u8) -> Option<screens::Screen> {
+    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<screens::Screen> {
         None
     }
 }

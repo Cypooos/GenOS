@@ -15,7 +15,7 @@ use volatile::Volatile;
 
 use crate::{
     game::screens::{
-        screens::{make_screens, Screen},
+        screens::{screen_to_instance, Screen},
         Screenable,
     },
     vga_writer,
@@ -28,18 +28,16 @@ lazy_static! {
 
 lazy_static! {
     pub static ref DESKTOP: Mutex<DesktopTUI> = Mutex::new(DesktopTUI {
-        mouse_pos: (5, 5),
-        active_screen: Screen::MainMenu,
-        all_screens: make_screens(),
+        _mouse_pos: (5, 5),
+        active_screen: screen_to_instance(Screen::MainMenu),
         time: 0,
     });
 }
 
 pub struct DesktopTUI {
-    mouse_pos: (usize, usize),
-    active_screen: Screen,
+    _mouse_pos: (usize, usize),
+    active_screen: Box<dyn Screenable>,
     time: u8,
-    all_screens: Vec<Box<dyn Screenable>>,
 }
 
 impl fmt::Write for DesktopTUI {
@@ -51,7 +49,7 @@ impl fmt::Write for DesktopTUI {
 
 impl DesktopTUI {
     pub fn start(&mut self) {
-        self.all_screens[self.active_screen as usize].init();
+        self.active_screen.init();
     }
 
     pub fn int_time(&mut self) {
@@ -75,25 +73,47 @@ impl DesktopTUI {
                 self.time
             );
         }
-        if let Some(x) = self.all_screens[self.active_screen as usize].draw() {
-            self.active_screen = x;
-            self.all_screens[self.active_screen as usize].init();
+        if let Some(x) = self.active_screen.on_time(self.time) {
+            self.active_screen = screen_to_instance(x);
+            self.active_screen.init();
         }
         return;
     }
 
     pub fn int_key(&mut self, scancode: u8) {
-        //vga_print!("desktop:{},", scancode);
-
-        if let Some(x) = self.all_screens[self.active_screen as usize].on_key(scancode) {
-            self.active_screen = x;
-            self.all_screens[self.active_screen as usize].init();
+        lazy_static! {
+            static ref KEYBOARD: Mutex<Keyboard<layouts::Azerty, ScancodeSet1>> = Mutex::new(
+                Keyboard::new(layouts::Azerty, ScancodeSet1, HandleControl::Ignore)
+            );
         };
+
+        let mut keyboard = KEYBOARD.lock();
+
+        // Detect key
+        if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
+            if let Some(x) = self.active_screen.on_key(
+                key_event.clone(),
+                if let Some(key) = keyboard.process_keyevent(key_event) {
+                    match key {
+                        DecodedKey::Unicode(character) => Some(character),
+                        DecodedKey::RawKey(_) => None,
+                    }
+                } else {
+                    None
+                },
+            ) {
+                self.active_screen = screen_to_instance(x);
+                self.active_screen.init();
+            }
+        } else {
+            qemu_debug!("Unknow keyboard interrupt");
+        };
+        //vga_print!("desktop:{},", scancode);
     }
 }
 
 #[doc(hidden)]
-pub fn _print(args: fmt::Arguments) {
+pub fn _print(_args: fmt::Arguments) {
     use core::fmt::Write;
     use x86_64::instructions::interrupts;
 

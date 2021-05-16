@@ -1,14 +1,12 @@
 use super::{screens::Screen, Screenable};
 use crate::vga_writer;
 use alloc::{
-    boxed::Box,
     format,
     string::{String, ToString},
 };
 
 use core::fmt;
-use lazy_static::lazy_static;
-use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, KeyState, Keyboard, ScancodeSet1};
+use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 use spin::Mutex;
 
 #[derive(Debug)]
@@ -25,7 +23,7 @@ impl Screenable for OneScreenMenu {
                 vga_writer::WRITER.lock().clear();
                 vga_write!(
                     0,
-                    7,
+                    6,
                     "                   $0B.o88b.  db   db   .d88b.   db   dD  d88888b  \
                     \n                  $0Bd8P  Y8  88   88  .8P  Y8.  88 ,8P'  88'     \
                     \n                  $038P       88ooo88  88    88  88,8P    88ooooo \
@@ -37,8 +35,8 @@ impl Screenable for OneScreenMenu {
                 );
             }
             OneScreenMenu::CreditMenu => {
-                vga_write!(17, 5, "$3E{: ^46}", "CHOKE: credits");
-                vga_write!(17, 6, "$3F{: ^46}", "A OS-game by <Discursif/>");
+                vga_write!(17, 5, "$8F{: ^46}", "CHOKE: credits");
+                vga_write!(17, 6, "$3F{: ^49}", "A OS-game by $3E<Discursif/>");
                 vga_write!(17, 7, "$3F{: ^46}", " ");
                 vga_write!(17, 8, "$3F{: ^46}", " ");
                 vga_write!(17, 9, "$3F{: ^46}", "Everything made by :");
@@ -52,7 +50,7 @@ impl Screenable for OneScreenMenu {
                     "OS made in rust based on PHIL'S tutorial"
                 );
             }
-            TestMenu => {
+            OneScreenMenu::TestMenu => {
                 vga_writer::WRITER.lock().clear();
                 vga_write!(
                     0,
@@ -68,48 +66,37 @@ impl Screenable for OneScreenMenu {
             }
         };
     }
-    fn draw(&mut self) -> Option<Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<Screen> {
         None
     }
-    fn on_key(&mut self, scancode: u8) -> Option<Screen> {
-        lazy_static! {
-            static ref KEYBOARD: Mutex<Keyboard<layouts::Azerty, ScancodeSet1>> = Mutex::new(
-                Keyboard::new(layouts::Azerty, ScancodeSet1, HandleControl::Ignore)
-            );
-        };
-
-        let mut keyboard = KEYBOARD.lock();
-
-        //vga_print!("desktop:{},", scancode);
-        if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
-            match key_event.code {
-                KeyCode::Spacebar => {
-                    if key_event.state == KeyState::Down {
-                        match self {
-                            OneScreenMenu::MainMenu => return Some(Screen::TestMenu),
-                            _ => (),
-                        };
+    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+        match key_event.code {
+            KeyCode::Spacebar => {
+                if key_event.state == KeyState::Down {
+                    match self {
+                        OneScreenMenu::MainMenu => return Some(Screen::TestMenu),
+                        _ => (),
                     };
-                }
-                KeyCode::Escape => {
-                    if key_event.state == KeyState::Down {
-                        match self {
-                            OneScreenMenu::MainMenu => return Some(Screen::CreditMenu),
-                            OneScreenMenu::CreditMenu => return Some(Screen::MainMenu),
-                            _ => (),
-                        };
-                    };
-                }
-                KeyCode::Tab => {
-                    if key_event.state == KeyState::Down {
-                        match self {
-                            OneScreenMenu::MainMenu => return Some(Screen::DebugPasswordMenu),
-                            _ => (),
-                        };
-                    };
-                }
-                _ => {}
+                };
             }
+            KeyCode::Escape => {
+                if key_event.state == KeyState::Down {
+                    match self {
+                        OneScreenMenu::MainMenu => return Some(Screen::CreditMenu),
+                        OneScreenMenu::CreditMenu => return Some(Screen::MainMenu),
+                        _ => (),
+                    };
+                };
+            }
+            KeyCode::Tab => {
+                if key_event.state == KeyState::Down {
+                    match self {
+                        OneScreenMenu::MainMenu => return Some(Screen::DebugPasswordMenu),
+                        _ => (),
+                    };
+                };
+            }
+            _ => {}
         };
         None
     }
@@ -118,6 +105,7 @@ impl Screenable for OneScreenMenu {
 pub struct PasswordMenu {
     pub code: String,
     act_code: String,
+    counter: usize,
     pub if_ok: Screen,
     pub if_nok: Screen,
 }
@@ -127,6 +115,7 @@ impl PasswordMenu {
         Self {
             code: code.to_string(),
             act_code: String::new(),
+            counter: PASSWORD_MENU_TIME,
             if_ok,
             if_nok,
         }
@@ -142,6 +131,8 @@ impl fmt::Debug for PasswordMenu {
     }
 }
 
+const PASSWORD_MENU_TIME: usize = 20;
+
 impl Screenable for PasswordMenu {
     fn init(&mut self) {
         let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());
@@ -153,45 +144,53 @@ impl Screenable for PasswordMenu {
         vga_write!(17, 9, "$3F{: ^49}", yee);
         vga_write!(17, 10, "$3F{: ^46}", "");
     }
-    fn draw(&mut self) -> Option<Screen> {
-        None
-    }
-    fn on_key(&mut self, scancode: u8) -> Option<Screen> {
-        lazy_static! {
-            static ref KEYBOARD: Mutex<Keyboard<layouts::Azerty, ScancodeSet1>> = Mutex::new(
-                Keyboard::new(layouts::Azerty, ScancodeSet1, HandleControl::Ignore)
-            );
-        };
-
-        let mut keyboard = KEYBOARD.lock();
-
-        //vga_print!("desktop:{},", scancode);
-        if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
-            if key_event.code == KeyCode::Escape {
-                if key_event.state == KeyState::Down {
-                    return Some(self.if_nok);
-                };
-                return None;
-            }
-
-            if let Some(key) = keyboard.process_keyevent(key_event) {
-                match key {
-                    DecodedKey::Unicode(character) => {
-                        self.act_code.push(character);
-                    }
-                    DecodedKey::RawKey(key) => {}
-                }
+    fn on_time(&mut self, _time: u8) -> Option<Screen> {
+        if self.act_code.len() == self.code.len() {
+            self.counter -= 1;
+            if self.counter == 0 {
+                let returning = Some(if self.act_code == self.code {
+                    self.if_ok
+                } else {
+                    self.if_nok
+                });
+                self.act_code = String::new();
+                self.counter = PASSWORD_MENU_TIME;
+                return returning;
             };
         }
+        None
+    }
+    fn on_key(&mut self, key_event: KeyEvent, as_char: Option<char>) -> Option<Screen> {
+        if self.act_code.len() == self.code.len() {
+            return None;
+        };
+
+        if key_event.state == KeyState::Down {
+            match key_event.code {
+                KeyCode::Escape | KeyCode::Enter => {
+                    self.act_code = "-".repeat(self.code.len());
+                    vga_write!(27, 7, "$4F{: ^26}", "INVALID PASSWORD");
+                    return None;
+                }
+                KeyCode::Backspace | KeyCode::Delete => {
+                    self.act_code.pop();
+                    let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());
+                    vga_write!(17, 9, "$3F{: ^49}", yee);
+                    return None;
+                }
+                _ => {}
+            }
+        };
+        if let Some(character) = as_char {
+            self.act_code.push(character);
+        };
 
         if self.act_code.len() == self.code.len() {
-            let returning = Some(if self.act_code == self.code {
-                self.if_ok
+            if self.act_code == self.code {
+                vga_write!(27, 7, "$AF{: ^26}", "PASSWORD ACCEPTED");
             } else {
-                self.if_nok
-            });
-            self.act_code = String::new();
-            return returning;
+                vga_write!(27, 7, "$4F{: ^26}", "INVALID PASSWORD");
+            }
         }
 
         let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());

@@ -91,6 +91,10 @@ pub fn stage1() {
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
+    qemu_debug!(
+        "Guess I've died\
+        \n    - Big Chungus"
+    );
     testing::panic_handler(info);
     hlt_loop();
 }

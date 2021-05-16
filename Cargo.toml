@@ -31,7 +31,7 @@ panic = "abort"
 
 [features]
 #   #[cfg(feature = "qemu-connect")]
-default = ["qemu-connect", "qemu-debug","info-bar"]
+default = ["qemu-connect", "qemu-debug"]
 qemu-connect = []
 qemu-debug = []
 info-bar = []
