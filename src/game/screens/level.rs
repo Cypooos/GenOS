@@ -15,6 +15,15 @@ pub struct LevelChoice {
     pub content: String,
 }
 
+impl LevelChoice {
+    pub fn new(name: &str, content: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            content: content.to_string(),
+        }
+    }
+}
+
 /*
 if screens > 8
 page*2 = start of screens
@@ -36,8 +45,8 @@ pub struct Level {
     pub choices: Vec<LevelChoice>,
     pub next: Screen,
     pub back: Screen,
-    _selected: usize,
-    _page: usize,
+    selected: usize,
+    page: usize,
 }
 
 impl Level {
@@ -58,21 +67,43 @@ impl Level {
             choices,
             next,
             back,
-            _selected: 0,
-            _page: 0,
+            selected: 0,
+            page: 0,
         }
     }
 }
 
 impl Level {
     fn redraw_level(&mut self) {
-        for x in 0..20 {
-            vga_write!(0, x, "$3F{: ^80}", "")
-        }
         match self.choices.len() {
             1 | 2 | 3 => {
-                for _x in 0..self.choices.len() {
-                    //self.choices[x].name
+                for x in 0..self.choices.len() {
+                    if x == self.selected {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            3,
+                            "   $E0{: ^1$}",
+                            self.choices[x].name,
+                            (80 / self.choices.len()) - 6
+                        );
+                    } else {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            3,
+                            "   $8F{: ^1$}",
+                            self.choices[x].name,
+                            (80 / self.choices.len()) - 6
+                        );
+                    }
+                    for y in 4..17 {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            y,
+                            "   $3F{: ^1$}",
+                            "",
+                            (80 / self.choices.len()) - 6
+                        );
+                    }
                 }
             }
             _ => {}
@@ -95,8 +126,25 @@ impl Screenable for Level {
     }
     fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
         // Detect key
-        if key_event.state == KeyState::Down {}
-        if key_event.code == KeyCode::A {}
-        None
+        if key_event.state != KeyState::Down {
+            return None;
+        };
+
+        match key_event.code {
+            KeyCode::D => {
+                self.selected = (self.selected + 1) % self.choices.len();
+                self.redraw_level();
+                None
+            }
+            KeyCode::Q => {
+                self.selected = self
+                    .selected
+                    .checked_sub(1)
+                    .unwrap_or(self.choices.len() - 1);
+                self.redraw_level();
+                None
+            }
+            _ => None,
+        }
     }
 }

@@ -5,11 +5,7 @@ use spin::Mutex;
 
 use core::{fmt, usize};
 
-use alloc::{
-    boxed::Box,
-};
-
-
+use alloc::boxed::Box;
 
 use crate::{
     game::screens::{
@@ -89,6 +85,7 @@ impl DesktopTUI {
 
         // Detect key
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
+            qemu_debug!("key:{:?}", key_event);
             if let Some(x) = self.active_screen.on_key(
                 key_event.clone(),
                 if let Some(key) = keyboard.process_keyevent(key_event) {
@@ -112,8 +109,6 @@ impl DesktopTUI {
 
 #[doc(hidden)]
 pub fn _print(_args: fmt::Arguments) {
-    
-    
 
     // interrupts::without_interrupts(|| {
     //     qemu_print!("ohdqiujhfs");

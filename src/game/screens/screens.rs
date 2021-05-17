@@ -3,6 +3,7 @@ use alloc::{boxed::Box, string::ToString, vec};
 use super::Screenable;
 
 use super::choke_talk::{ChokeFace, SimpleDialogue};
+use super::level::{Level, LevelChoice};
 use super::menus::{OneScreenMenu, PasswordMenu};
 use super::visual::GifVeiwer;
 
@@ -19,6 +20,7 @@ pub enum Screen {
     TestDialogueHappy,
     TestDialogueOwO,
     TestGif,
+    TestLevel3Simple,
 }
 
 pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
@@ -234,6 +236,17 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
             ],
             4,
             Screen::MainMenu,
+        )),
+        Screen::TestLevel3Simple => Box::new(Level::new(
+            "A simple test level",
+            ("", "A cool level no ?", "third is gud"),
+            vec![
+                LevelChoice::new("Choice 1", "not Pog"),
+                LevelChoice::new("Choice 2", "not Pog"),
+                LevelChoice::new("Choice 3", "veryyyy Pog"),
+            ],
+            Screen::MainMenu,
+            Screen::TestMenu,
         )),
     }
 }

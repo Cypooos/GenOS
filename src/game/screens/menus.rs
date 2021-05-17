@@ -8,7 +8,6 @@ use alloc::{
 use core::fmt;
 use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 
-
 #[derive(Debug)]
 pub enum OneScreenMenu {
     MainMenu,
@@ -74,7 +73,7 @@ impl Screenable for OneScreenMenu {
             KeyCode::Spacebar => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::TestMenu),
+                        OneScreenMenu::MainMenu => return Some(Screen::TestLevel3Simple),
                         _ => (),
                     };
                 };

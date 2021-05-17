@@ -20,27 +20,23 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
 
     info!("main called");
 
-    use x86_64::instructions::interrupts;
-    interrupts::without_interrupts(|| {
-        genos::stage1();
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { genos::memory::init(phys_mem_offset) };
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
-        #[cfg(test)]
-        test_main();
+    genos::stage1();
 
-        // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
-        // MEMENTO MORI
-        debug!("Initialisation of the allocator");
+    #[cfg(test)]
+    test_main();
 
-        let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-        let mut mapper = unsafe { genos::memory::init(phys_mem_offset) };
-        let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
-        allocator::init_heap(&mut mapper, &mut frame_allocator)
-            .expect("heap initialization failed");
+    // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
+    // MEMENTO MORI
+    debug!("Initialisation of the allocator");
 
-        done!("OS launch");
+    done!("OS launch");
 
-        DESKTOP.lock().start();
-    });
+    DESKTOP.lock().start();
 
     genos::hlt_loop();
 }
