@@ -13,13 +13,15 @@ use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 pub struct LevelChoice {
     pub name: String,
     pub content: String,
+    pub if_sel: Screen,
 }
 
 impl LevelChoice {
-    pub fn new(name: &str, content: &str) -> Self {
+    pub fn new(name: &str, content: &str, screen: Screen) -> Self {
         Self {
             name: name.to_string(),
             content: content.to_string(),
+            if_sel: screen,
         }
     }
 }
@@ -106,6 +108,37 @@ impl Level {
                     }
                 }
             }
+            4 => {
+                for x in 0..2 {
+                    for y in 0..2 {
+                    if x == self.selected {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            3,
+                            "   $E0{: ^1$}",
+                            self.choices[x].name,
+                            (80 / self.choices.len()) - 6
+                        );
+                    } else {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            3,
+                            "   $8F{: ^1$}",
+                            self.choices[x].name,
+                            (80 / self.choices.len()) - 6
+                        );
+                    }
+                    for y in 4..17 {
+                        vga_write!(
+                            x * (80 / self.choices.len()),
+                            y,
+                            "   $3F{: ^1$}",
+                            "",
+                            (80 / self.choices.len()) - 6
+                        );
+                    }
+                }
+            }
             _ => {}
         };
     }
@@ -144,6 +177,7 @@ impl Screenable for Level {
                 self.redraw_level();
                 None
             }
+            KeyCode::Spacebar | KeyCode::Enter => Some(self.choices[self.selected].if_sel),
             _ => None,
         }
     }

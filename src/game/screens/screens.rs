@@ -241,9 +241,9 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
             "A simple test level",
             ("", "A cool level no ?", "third is gud"),
             vec![
-                LevelChoice::new("Choice 1", "not Pog"),
-                LevelChoice::new("Choice 2", "not Pog"),
-                LevelChoice::new("Choice 3", "veryyyy Pog"),
+                LevelChoice::new("Choice 1", "not Pog", Screen::MainMenu),
+                LevelChoice::new("Choice 2", "not Pog", Screen::MainMenu),
+                LevelChoice::new("Choice 3", "veryyyy Pog", Screen::MainMenu),
             ],
             Screen::MainMenu,
             Screen::TestMenu,
