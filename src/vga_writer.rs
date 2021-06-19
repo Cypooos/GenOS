@@ -7,6 +7,10 @@ use spin::Mutex;
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
+
+// 80 * 25
+// $ char back
+
 pub enum Color {
     Black = 0,       // 0
     Blue = 1,        // 1
@@ -114,7 +118,7 @@ impl Writer {
         }
     }
 
-    fn clear_row(&mut self, row: usize) {
+    pub fn clear_row(&mut self, row: usize) {
         for col in 0..BUFFER_WIDTH {
             self.buffer.chars[row][col].write(DEFAULT_SCREENCHAR);
         }

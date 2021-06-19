@@ -12,7 +12,7 @@ use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 pub enum OneScreenMenu {
     MainMenu,
     CreditMenu,
-    TestMenu,
+    _404,
 }
 
 impl Screenable for OneScreenMenu {
@@ -29,8 +29,10 @@ impl Screenable for OneScreenMenu {
                     \n                  $038b       88~~~88  88    88  88`8b    88~~~~~ \
                     \n                  $02Y8b  d8  88   88  `8b  d8'  88 `88.  88.     \
                     \n                  $0A `Y88P'  YP   YP   `Y88P'   YP   YD  Y88888P \
-                    \n\n\n\n                            $0ESince 1985. \
-                    \n                                    $0DPress Space to $D0start$0D."
+                    \n\n                                  $0ESince 1985. \
+                    \n\n\n                  $0A- Press Space to $A0start$0A\
+                    \n                  $0C- Press Tab  for $C0files$0C\
+                    \n                  $0A- Press Esc  for $A0credits$0A"
                 );
             }
             OneScreenMenu::CreditMenu => {
@@ -49,7 +51,7 @@ impl Screenable for OneScreenMenu {
                     "OS made in rust based on PHIL'S tutorial"
                 );
             }
-            OneScreenMenu::TestMenu => {
+            OneScreenMenu::_404 => {
                 vga_writer::WRITER.lock().clear();
                 vga_write!(
                     0,
@@ -60,7 +62,7 @@ impl Screenable for OneScreenMenu {
                     \n                  $03 88  ooo  88~~~88  88  88  88  88~~~~~  \
                     \n                  $02 88. ~8~  88   88  88  88  88  88.      \
                     \n                  $0A  Y888P   YP   YP  YP  YP  YP  Y88888P  \
-                    \n\n\n\n                              $0EYou are in !"
+                    \n\n\n\n                              $0EThis is a 404"
                 );
             }
         };
@@ -73,7 +75,7 @@ impl Screenable for OneScreenMenu {
             KeyCode::Spacebar => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::TestLevel3Simple),
+                        OneScreenMenu::MainMenu => return Some(Screen::Intro(0)),
                         _ => (),
                     };
                 };
@@ -90,7 +92,7 @@ impl Screenable for OneScreenMenu {
             KeyCode::Tab => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::DebugPasswordMenu),
+                        OneScreenMenu::MainMenu => return Some(Screen::FilesPassword),
                         _ => (),
                     };
                 };

@@ -111,36 +111,37 @@ impl Level {
             4 => {
                 for x in 0..2 {
                     for y in 0..2 {
-                    if x == self.selected {
-                        vga_write!(
-                            x * (80 / self.choices.len()),
-                            3,
-                            "   $E0{: ^1$}",
-                            self.choices[x].name,
-                            (80 / self.choices.len()) - 6
-                        );
-                    } else {
-                        vga_write!(
-                            x * (80 / self.choices.len()),
-                            3,
-                            "   $8F{: ^1$}",
-                            self.choices[x].name,
-                            (80 / self.choices.len()) - 6
-                        );
-                    }
-                    for y in 4..17 {
-                        vga_write!(
-                            x * (80 / self.choices.len()),
-                            y,
-                            "   $3F{: ^1$}",
-                            "",
-                            (80 / self.choices.len()) - 6
-                        );
+                        if x == self.selected {
+                            vga_write!(
+                                x * (80 / self.choices.len()),
+                                3,
+                                "   $E0{: ^1$}",
+                                self.choices[x].name,
+                                (80 / self.choices.len()) - 6
+                            );
+                        } else {
+                            vga_write!(
+                                x * (80 / self.choices.len()),
+                                3,
+                                "   $8F{: ^1$}",
+                                self.choices[x].name,
+                                (80 / self.choices.len()) - 6
+                            );
+                        }
+                        for y in 4..17 {
+                            vga_write!(
+                                x * (80 / self.choices.len()),
+                                y,
+                                "   $3F{: ^1$}",
+                                "",
+                                (80 / self.choices.len()) - 6
+                            );
+                        }
                     }
                 }
             }
-            _ => {}
-        };
+            _ => unreachable!(),
+        }
     }
 }
 
