@@ -45,20 +45,12 @@ pub struct Level {
     pub name: String,
     pub description: (String, String, String),
     pub choices: Vec<LevelChoice>,
-    pub next: Screen,
-    pub back: Screen,
     selected: usize,
     page: usize,
 }
 
 impl Level {
-    pub fn new(
-        name: &str,
-        description: (&str, &str, &str),
-        choices: Vec<LevelChoice>,
-        back: Screen,
-        next: Screen,
-    ) -> Self {
+    pub fn new(name: &str, description: (&str, &str, &str), choices: Vec<LevelChoice>) -> Self {
         Self {
             name: name.to_string(),
             description: (
@@ -67,8 +59,6 @@ impl Level {
                 description.2.to_string(),
             ),
             choices,
-            next,
-            back,
             selected: 0,
             page: 0,
         }
@@ -78,69 +68,55 @@ impl Level {
 impl Level {
     fn redraw_level(&mut self) {
         match self.choices.len() {
-            1 | 2 | 3 => {
-                for x in 0..self.choices.len() {
+            1 | 2 | 3 | 4 => {
+                let nb = self.choices.len();
+                for x in 0..nb {
                     if x == self.selected {
                         vga_write!(
-                            x * (80 / self.choices.len()),
+                            x * (80 / nb),
                             3,
-                            "   $E0{: ^1$}",
+                            " $E0{: ^1$}",
                             self.choices[x].name,
-                            (80 / self.choices.len()) - 6
+                            (80 / nb) - 2
                         );
                     } else {
                         vga_write!(
-                            x * (80 / self.choices.len()),
+                            x * (80 / nb),
                             3,
-                            "   $8F{: ^1$}",
+                            " $8F{: ^1$}",
                             self.choices[x].name,
-                            (80 / self.choices.len()) - 6
+                            (80 / nb) - 2
                         );
                     }
                     for y in 4..17 {
+                        vga_write!(x * (80 / nb), y, " $3F{: ^1$}", "", (80 / nb) - 2);
+                    }
+                }
+            }
+            nb => {
+                for x in 0..4 {
+                    if x + self.page == self.selected {
                         vga_write!(
-                            x * (80 / self.choices.len()),
-                            y,
-                            "   $3F{: ^1$}",
-                            "",
-                            (80 / self.choices.len()) - 6
+                            x * 20,
+                            3,
+                            " $E0{: ^1$}",
+                            self.choices[x + self.page].name,
+                            12
+                        );
+                    } else {
+                        vga_write!(
+                            x * 20,
+                            3,
+                            "   $8F{: ^1$}",
+                            self.choices[x + self.page].name,
+                            14
                         );
                     }
-                }
-            }
-            4 => {
-                for x in 0..2 {
-                    for y in 0..2 {
-                        if x == self.selected {
-                            vga_write!(
-                                x * (80 / self.choices.len()),
-                                3,
-                                "   $E0{: ^1$}",
-                                self.choices[x].name,
-                                (80 / self.choices.len()) - 6
-                            );
-                        } else {
-                            vga_write!(
-                                x * (80 / self.choices.len()),
-                                3,
-                                "   $8F{: ^1$}",
-                                self.choices[x].name,
-                                (80 / self.choices.len()) - 6
-                            );
-                        }
-                        for y in 4..17 {
-                            vga_write!(
-                                x * (80 / self.choices.len()),
-                                y,
-                                "   $3F{: ^1$}",
-                                "",
-                                (80 / self.choices.len()) - 6
-                            );
-                        }
+                    for y in 4..17 {
+                        vga_write!(x * 20, y, "   $3F{: ^1$}", "", 14);
                     }
                 }
             }
-            _ => unreachable!(),
         }
     }
 }
@@ -165,16 +141,26 @@ impl Screenable for Level {
         };
 
         match key_event.code {
-            KeyCode::D => {
+            KeyCode::D | KeyCode::ArrowRight => {
                 self.selected = (self.selected + 1) % self.choices.len();
+                if (self.selected >= self.page + 4) {
+                    self.page = self.selected - 3
+                } else if (self.selected < self.page) {
+                    self.page = self.selected
+                };
                 self.redraw_level();
                 None
             }
-            KeyCode::Q => {
+            KeyCode::Q | KeyCode::ArrowLeft => {
                 self.selected = self
                     .selected
                     .checked_sub(1)
                     .unwrap_or(self.choices.len() - 1);
+                if (self.selected >= self.page + 4) {
+                    self.page = self.selected - 3
+                } else if (self.selected < self.page) {
+                    self.page = self.selected
+                };
                 self.redraw_level();
                 None
             }

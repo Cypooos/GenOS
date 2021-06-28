@@ -75,10 +75,23 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
                     "( not calling names, but if you failed this you are",
                     "  kinda dumb. )",
                 ],
-                Screen::MainMenu,
+                Screen::Level1,
             )),
             _ => Box::new(OneScreenMenu::_404),
         },
+        Level1 => Box::new(Level::new(
+            "Level 1",
+            ("", "The good choice is the first", ""),
+            vec![
+                LevelChoice::new("Choice 1", "I am the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 2", "I am NOT the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 3", "I am NOT the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 4", "I am NOT the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 5", "I am NOT the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 6", "I am NOT the correct choice", Screen::MainMenu),
+                LevelChoice::new("Choice 7", "I am NOT the correct choice", Screen::MainMenu),
+            ],
+        )),
         _ => Box::new(OneScreenMenu::_404),
     }
 }
