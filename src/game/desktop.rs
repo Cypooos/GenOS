@@ -31,6 +31,7 @@ lazy_static! {
 pub struct DesktopTUI {
     _mouse_pos: (usize, usize),
     active_screen: Box<dyn Screenable>,
+    levels: HashMap<String, Box<dyn Screenable>>,
     time: u8,
 }
 

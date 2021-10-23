@@ -109,11 +109,11 @@ impl Level {
                             3,
                             "   $8F{: ^1$}",
                             self.choices[x + self.page].name,
-                            14
+                            12
                         );
                     }
                     for y in 4..17 {
-                        vga_write!(x * 20, y, "   $3F{: ^1$}", "", 14);
+                        vga_write!(x * 20, y, "   $3F{: ^1$}", "", 12);
                     }
                 }
             }

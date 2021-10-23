@@ -1,5 +1,3 @@
-
-
 pub mod choke_talk;
 pub mod file_explorer;
 pub mod level;
@@ -12,18 +10,14 @@ pub mod visual;
 use pc_keyboard::KeyEvent;
 
 pub trait Screenable: Send + Sync {
-    fn init(&mut self) {}
-    fn on_time(&mut self, _time: u8) -> Option<screens::Screen> {
-        None
-    }
-    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<screens::Screen> {
-        None
-    }
+    fn init(&mut self);
+    fn on_time(&mut self, _time: u8) -> Option<screens::Screen>;
+    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<screens::Screen>;
 }
 
 //match self.active_screen.draw() {
 //    Some(e) => self.active_screen = e,
-//    None => {}
+//    None => {}s
 //}
 /*    Screens::MainMenuDebugPass => {
         vga_write!(20, 5, "$3F{: ^40}", "Develloper acces");
