@@ -1,4 +1,5 @@
-use super::{screens::Screen, Screenable};
+/*
+use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer;
 use alloc::{string::String, vec::Vec};
 
@@ -27,7 +28,7 @@ impl Screenable for GifVeiwer {
         vga_writer::WRITER.lock().clear();
         vga_write!(0, 0, "{}", self.frames[0]);
     }
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
+    fn draw(&mut self) -> Option<Vec<ScreenableAnswer>> {
         self.frame_nb += 1;
         if self.frame_nb / self.speed >= self.frames.len() {
             self.frame_nb = 0;
@@ -36,11 +37,16 @@ impl Screenable for GifVeiwer {
         vga_write!(0, 0, "{}", self.frames[self.frame_nb / self.speed]);
         None
     }
-    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+    fn on_key(
+        &mut self,
+        key_event: KeyEvent,
+        _as_char: Option<char>,
+    ) -> Option<Vec<ScreenableAnswer>> {
         // Detect key
         if key_event.state == KeyState::Down {
-            return Some(self.next);
+            return Some(vec![ScreenableAnswer::Replace(self.next));
         }
         None
     }
 }
+*/

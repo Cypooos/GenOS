@@ -5,12 +5,12 @@ use spin::Mutex;
 
 use core::{fmt, usize};
 
-use alloc::boxed::Box;
+use alloc::{boxed::Box, vec::Vec};
 
 use crate::{
     game::screens::{
         screens::{screen_to_instance, Screen},
-        Screenable,
+        Screenable, SA,
     },
     vga_writer,
 };
@@ -24,6 +24,7 @@ lazy_static! {
     pub static ref DESKTOP: Mutex<DesktopTUI> = Mutex::new(DesktopTUI {
         _mouse_pos: (5, 5),
         active_screen: screen_to_instance(Screen::MainMenu),
+        paused_screens: Vec::new(),
         time: 0,
     });
 }
@@ -31,7 +32,8 @@ lazy_static! {
 pub struct DesktopTUI {
     _mouse_pos: (usize, usize),
     active_screen: Box<dyn Screenable>,
-    levels: HashMap<String, Box<dyn Screenable>>,
+    paused_screens: Vec<Box<dyn Screenable>>,
+    // levels: HashMap<String, Box<dyn Screenable>>,
     time: u8,
 }
 
@@ -44,7 +46,9 @@ impl fmt::Write for DesktopTUI {
 
 impl DesktopTUI {
     pub fn start(&mut self) {
-        self.active_screen.init();
+        if let Some(x) = self.active_screen.init() {
+            self.execute_actions(x)
+        }
     }
 
     pub fn int_time(&mut self) {
@@ -69,10 +73,36 @@ impl DesktopTUI {
             );
         }
         if let Some(x) = self.active_screen.on_time(self.time) {
-            self.active_screen = screen_to_instance(x);
-            self.active_screen.init();
+            self.execute_actions(x)
         }
+        for mut x in self.paused_screens {
+            x.draw();
+        }
+        self.active_screen.draw();
         return;
+    }
+
+    pub fn execute_actions(&mut self, actions: Vec<SA>) {
+        for action in actions {
+            match action {
+                SA::Change(x) => {
+                    self.active_screen = screen_to_instance(x);
+                    self.active_screen.init();
+                }
+                SA::Load(x) => {
+                    self.paused_screens.push(self.active_screen.drop());
+                    self.active_screen = screen_to_instance(x);
+                    self.active_screen.init();
+                }
+                SA::Restore => {
+                    self.active_screen = self
+                        .paused_screens
+                        .pop()
+                        .unwrap_or(screen_to_instance(Screen::MainMenu));
+                    self.active_screen.init();
+                }
+            }
+        }
     }
 
     pub fn int_key(&mut self, scancode: u8) {
@@ -98,12 +128,12 @@ impl DesktopTUI {
                     None
                 },
             ) {
-                self.active_screen = screen_to_instance(x);
-                self.active_screen.init();
+                self.execute_actions(x)
             }
         } else {
             qemu_debug!("Unknow keyboard interrupt");
         };
+        self.draw();
         //vga_print!("desktop:{},", scancode);
     }
 }

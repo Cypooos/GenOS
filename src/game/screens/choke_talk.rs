@@ -1,6 +1,6 @@
-use super::{screens::Screen, Screenable};
+use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer;
-use alloc::{borrow::ToOwned, string::String};
+use alloc::{borrow::ToOwned, string::String, vec, vec::Vec};
 
 use pc_keyboard::{KeyEvent, KeyState};
 
@@ -22,13 +22,13 @@ pub struct RpgDial {
     pub face: ChokeFace,
     pub name: String,
     pub text: [String; 5], // 5 lines of text
-    pub next: Screen,
+    pub next: Vec<SA>,
     time: usize,
     size: usize,
 }
 
 impl RpgDial {
-    pub fn new(face: ChokeFace, name: &str, texts: [&str; 5], next: Screen) -> Self {
+    pub fn new(face: ChokeFace, name: &str, texts: [&str; 5], next: Vec<SA>) -> Self {
         Self {
             face,
             name: name.to_owned(),
@@ -41,7 +41,7 @@ impl RpgDial {
 }
 
 impl Screenable for RpgDial {
-    fn init(&mut self) {
+    fn draw(&mut self) -> Option<Vec<SA>> {
         for row in CH_STR_Y..25 {
             vga_writer::WRITER.lock().clear_row(row);
         }
@@ -106,11 +106,6 @@ impl Screenable for RpgDial {
                 vga_write!(CH_STR_X, CH_STR_Y + 9, r#"    '#######'    "#);
             }
         }
-    }
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
-        if self.time < self.size {
-            self.time += TEXT_SPEED
-        };
         vga_write!(TXT_STR_X, TXT_STR_Y + 0, "{:.1$}", self.text[0], self.time);
         vga_write!(TXT_STR_X, TXT_STR_Y + 1, "{:.1$}", self.text[1], self.time);
         vga_write!(TXT_STR_X, TXT_STR_Y + 2, "{:.1$}", self.text[2], self.time);
@@ -118,14 +113,20 @@ impl Screenable for RpgDial {
         vga_write!(TXT_STR_X, TXT_STR_Y + 4, "{:.1$}", self.text[4], self.time);
         None
     }
-    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
+        if self.time < self.size {
+            self.time += TEXT_SPEED
+        };
+        None
+    }
+    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>> {
         //vga_print!("desktop:{},", scancode);
         if key_event.state == KeyState::Down {
             if self.time < self.size {
                 self.time = self.size;
             } else {
                 self.time = 0;
-                return Some(self.next);
+                return Some(self.next.clone());
             }
         };
         None

@@ -22,14 +22,25 @@ impl Element {
 }
 
 impl Screenable for Element {
-    fn init(&mut self) {
-        vga_writer::WRITER.lock().clear();
-        vga_write!(0, 0, "")
+    fn init(&mut self) -> Option<Vec<ScreenableAnswer>> {
+        None
     }
-    fn on_time(&mut self, time: u8) -> Option<Screen> {}
-    fn on_key(&mut self, key_event: KeyEvent, as_char: Option<char>) -> Option<Screen> {
+    fn draw(&mut self) -> Option<Vec<ScreenableAnswer>> {
+        vga_writer::WRITER.lock().clear();
+        vga_write!(0, 0, "");
+        None
+    }
+    fn on_time(&mut self, _time: u8) -> Option<Vec<ScreenableAnswer>> {
+        None
+    }
+    fn on_key(
+        &mut self,
+        _key_event: KeyEvent,
+        _as_char: Option<char>,
+    ) -> Option<Vec<ScreenableAnswer>> {
         // Detect key
         if key_event.state == KeyState::Down {}
         if key_event.code == KeyCode::A {}
+        None
     }
 }

@@ -1,8 +1,10 @@
-use super::{screens::Screen, Screenable};
+use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer;
 use alloc::{
     format,
     string::{String, ToString},
+    vec,
+    vec::Vec,
 };
 
 use core::fmt;
@@ -16,7 +18,10 @@ pub enum OneScreenMenu {
 }
 
 impl Screenable for OneScreenMenu {
-    fn init(&mut self) {
+    fn init(&mut self) -> Option<Vec<SA>> {
+        None
+    }
+    fn draw(&mut self) -> Option<Vec<SA>> {
         match self {
             OneScreenMenu::MainMenu => {
                 vga_writer::WRITER.lock().clear();
@@ -66,16 +71,17 @@ impl Screenable for OneScreenMenu {
                 );
             }
         };
-    }
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
         None
     }
-    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
+        None
+    }
+    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>> {
         match key_event.code {
             KeyCode::Spacebar => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::Intro(0)),
+                        OneScreenMenu::MainMenu => return Some(vec![SA::Change(Screen::Intro(0))]),
                         _ => (),
                     };
                 };
@@ -83,8 +89,12 @@ impl Screenable for OneScreenMenu {
             KeyCode::Escape => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::CreditMenu),
-                        OneScreenMenu::CreditMenu => return Some(Screen::MainMenu),
+                        OneScreenMenu::MainMenu => {
+                            return Some(vec![SA::Change(Screen::CreditMenu)])
+                        }
+                        OneScreenMenu::CreditMenu => {
+                            return Some(vec![SA::Change(Screen::MainMenu)])
+                        }
                         _ => (),
                     };
                 };
@@ -92,7 +102,9 @@ impl Screenable for OneScreenMenu {
             KeyCode::Tab => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => return Some(Screen::FilesPassword),
+                        OneScreenMenu::MainMenu => {
+                            return Some(vec![SA::Load(Screen::FilesPassword)])
+                        }
                         _ => (),
                     };
                 };
@@ -107,12 +119,12 @@ pub struct PasswordMenu {
     pub code: String,
     act_code: String,
     counter: usize,
-    pub if_ok: Screen,
-    pub if_nok: Screen,
+    pub if_ok: Vec<SA>,
+    pub if_nok: Vec<SA>,
 }
 
 impl PasswordMenu {
-    pub fn new(code: &str, if_ok: Screen, if_nok: Screen) -> Self {
+    pub fn new(code: &str, if_ok: Vec<SA>, if_nok: Vec<SA>) -> Self {
         Self {
             code: code.to_string(),
             act_code: String::new(),
@@ -135,7 +147,10 @@ impl fmt::Debug for PasswordMenu {
 const PASSWORD_MENU_TIME: usize = 20;
 
 impl Screenable for PasswordMenu {
-    fn init(&mut self) {
+    fn init(&mut self) -> Option<Vec<SA>> {
+        None
+    }
+    fn draw(&mut self) -> Option<Vec<SA>> {
         let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());
 
         vga_write!(17, 5, "$4F{: ^46}", "[Password required]");
@@ -144,15 +159,16 @@ impl Screenable for PasswordMenu {
         vga_write!(17, 8, "$3F{: ^46}", "");
         vga_write!(17, 9, "$3F{: ^49}", yee);
         vga_write!(17, 10, "$3F{: ^46}", "");
+        None
     }
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         if self.act_code.len() == self.code.len() {
             self.counter -= 1;
             if self.counter == 0 {
                 let returning = Some(if self.act_code == self.code {
-                    self.if_ok
+                    self.if_ok.clone()
                 } else {
-                    self.if_nok
+                    self.if_nok.clone()
                 });
                 self.act_code = String::new();
                 self.counter = PASSWORD_MENU_TIME;
@@ -161,7 +177,7 @@ impl Screenable for PasswordMenu {
         }
         None
     }
-    fn on_key(&mut self, key_event: KeyEvent, as_char: Option<char>) -> Option<Screen> {
+    fn on_key(&mut self, key_event: KeyEvent, as_char: Option<char>) -> Option<Vec<SA>> {
         if self.act_code.len() == self.code.len() {
             return None;
         };

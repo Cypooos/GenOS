@@ -5,14 +5,30 @@ pub mod menus;
 pub mod screens;
 pub mod visual;
 
+use alloc::{vec, vec::Vec};
+
 //mod template;
 
 use pc_keyboard::KeyEvent;
 
+#[derive(Debug, Clone, Copy)]
+pub enum SA {
+    Restore,
+    Load(screens::Screen),
+    Change(screens::Screen),
+}
+
 pub trait Screenable: Send + Sync {
-    fn init(&mut self);
-    fn on_time(&mut self, _time: u8) -> Option<screens::Screen>;
-    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<screens::Screen>;
+    fn init(&mut self) -> Option<Vec<SA>> {
+        None
+    }
+    fn draw(&mut self) -> Option<Vec<SA>> {
+        None
+    }
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
+        None
+    }
+    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>>;
 }
 
 //match self.active_screen.draw() {

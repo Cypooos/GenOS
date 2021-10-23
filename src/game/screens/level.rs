@@ -1,9 +1,10 @@
-use super::{screens::Screen, Screenable};
+use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer;
 use alloc::{
     // boxed::Box,
     // format,
     string::{String, ToString},
+    vec,
     vec::Vec,
 };
 
@@ -65,8 +66,17 @@ impl Level {
     }
 }
 
-impl Level {
-    fn redraw_level(&mut self) {
+impl Screenable for Level {
+    fn init(&mut self) -> Option<Vec<SA>> {
+        None
+    }
+
+    fn draw(&mut self) -> Option<Vec<SA>> {
+        vga_writer::WRITER.lock().clear();
+        vga_write!(0, 21, "$8F{: ^80}", self.name);
+        vga_write!(0, 22, "$3F{: ^80}", self.description.0);
+        vga_write!(0, 23, "$3F{: ^80}", self.description.1);
+        vga_write!(0, 24, "$3F{: ^80}", self.description.2);
         match self.choices.len() {
             1 | 2 | 3 | 4 => {
                 let nb = self.choices.len();
@@ -93,7 +103,7 @@ impl Level {
                     }
                 }
             }
-            nb => {
+            _nb => {
                 for x in 0..4 {
                     if x + self.page == self.selected {
                         vga_write!(
@@ -117,24 +127,15 @@ impl Level {
                     }
                 }
             }
-        }
-    }
-}
-
-impl Screenable for Level {
-    fn init(&mut self) {
-        vga_writer::WRITER.lock().clear();
-        vga_write!(0, 21, "$8F{: ^80}", self.name);
-        vga_write!(0, 22, "$3F{: ^80}", self.description.0);
-        vga_write!(0, 23, "$3F{: ^80}", self.description.1);
-        vga_write!(0, 24, "$3F{: ^80}", self.description.2);
-        self.redraw_level();
-    }
-
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
+        };
         None
     }
-    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
+        None
+    }
+
+    fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>> {
         // Detect key
         if key_event.state != KeyState::Down {
             return None;
@@ -143,12 +144,12 @@ impl Screenable for Level {
         match key_event.code {
             KeyCode::D | KeyCode::ArrowRight => {
                 self.selected = (self.selected + 1) % self.choices.len();
-                if (self.selected >= self.page + 4) {
+                if self.selected >= self.page + 4 {
                     self.page = self.selected - 3
-                } else if (self.selected < self.page) {
+                } else if self.selected < self.page {
                     self.page = self.selected
                 };
-                self.redraw_level();
+                self.draw();
                 None
             }
             KeyCode::Q | KeyCode::ArrowLeft => {
@@ -156,15 +157,17 @@ impl Screenable for Level {
                     .selected
                     .checked_sub(1)
                     .unwrap_or(self.choices.len() - 1);
-                if (self.selected >= self.page + 4) {
+                if self.selected >= self.page + 4 {
                     self.page = self.selected - 3
-                } else if (self.selected < self.page) {
+                } else if self.selected < self.page {
                     self.page = self.selected
                 };
-                self.redraw_level();
+                self.draw();
                 None
             }
-            KeyCode::Spacebar | KeyCode::Enter => Some(self.choices[self.selected].if_sel),
+            KeyCode::Spacebar | KeyCode::Enter => {
+                Some(vec![SA::Change(self.choices[self.selected].if_sel)])
+            }
             _ => None,
         }
     }

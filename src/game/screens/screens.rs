@@ -1,11 +1,11 @@
-use alloc::{boxed::Box, string::ToString, vec};
+use alloc::{boxed::Box, vec};
 
-use super::Screenable;
+use super::{Screenable, SA};
 
 use super::choke_talk::{ChokeFace, RpgDial};
 use super::level::{Level, LevelChoice};
 use super::menus::{OneScreenMenu, PasswordMenu};
-use super::visual::GifVeiwer;
+// use super::visual::GifVeiwer;
 
 pub struct GameLogic {
     pub restart_lvl1: usize, // nombre de fois qu'il a restart le level 1
@@ -30,16 +30,18 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
     match ele {
         Screen::MainMenu => Box::new(OneScreenMenu::MainMenu),
         Screen::CreditMenu => Box::new(OneScreenMenu::CreditMenu),
-        Screen::FilesPassword => {
-            Box::new(PasswordMenu::new("456789", Screen::Files, Screen::MainMenu))
-        }
+        Screen::FilesPassword => Box::new(PasswordMenu::new(
+            "456789",
+            vec![SA::Restore, SA::Load(Screen::Files)],
+            vec![SA::Restore],
+        )),
 
         Screen::Intro(x) => match x {
             0 => Box::new(RpgDial::new(
                 ChokeFace::Normal,
                 "$0E - Choke -",
                 ["", "", "Hi player. Welcome to this game.", "", ""],
-                Screen::Intro(1),
+                vec![SA::Change(Screen::Intro(1))],
             )),
             1 => Box::new(RpgDial::new(
                 ChokeFace::Normal,
@@ -51,7 +53,7 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
                     "",
                     "Like not at all. You will hate it.",
                 ],
-                Screen::Intro(2),
+                vec![SA::Change(Screen::Intro(2))],
             )),
             2 => Box::new(RpgDial::new(
                 ChokeFace::Happy,
@@ -63,7 +65,7 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
                     "After all thoses years...",
                     "",
                 ],
-                Screen::Intro(3),
+                vec![SA::Change(Screen::Intro(3))],
             )),
             3 => Box::new(RpgDial::new(
                 ChokeFace::Normal,
@@ -75,11 +77,11 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
                     "( not calling names, but if you failed this you are",
                     "  kinda dumb. )",
                 ],
-                Screen::Level1,
+                vec![SA::Restore, SA::Change(Screen::Level1)],
             )),
             _ => Box::new(OneScreenMenu::_404),
         },
-        Level1 => Box::new(Level::new(
+        Screen::Level1 => Box::new(Level::new(
             "Level 1",
             ("", "The good choice is the first", ""),
             vec![

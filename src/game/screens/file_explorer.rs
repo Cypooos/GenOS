@@ -1,4 +1,4 @@
-use super::{screens::Screen, Screenable};
+use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer::{Color, WRITER};
 
 use alloc::{string::String, vec::Vec};
@@ -21,13 +21,14 @@ pub struct FileExplorer {
 }
 
 impl Screenable for FileExplorer {
-    fn init(&mut self) {
+    fn init(&mut self) -> Option<Vec<SA>> {
         WRITER.lock().clear();
-    }
-    fn on_time(&mut self, _time: u8) -> Option<Screen> {
         None
     }
-    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<Screen> {
+    fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
+        None
+    }
+    fn on_key(&mut self, _key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>> {
         None
     }
 }
