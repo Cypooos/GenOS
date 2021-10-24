@@ -21,7 +21,7 @@ impl Screenable for OneScreenMenu {
     fn init(&mut self) -> Option<Vec<SA>> {
         None
     }
-    fn draw(&mut self) -> Option<Vec<SA>> {
+    fn draw(&self) -> Option<Vec<SA>> {
         match self {
             OneScreenMenu::MainMenu => {
                 vga_writer::WRITER.lock().clear();
@@ -150,7 +150,7 @@ impl Screenable for PasswordMenu {
     fn init(&mut self) -> Option<Vec<SA>> {
         None
     }
-    fn draw(&mut self) -> Option<Vec<SA>> {
+    fn draw(&self) -> Option<Vec<SA>> {
         let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());
 
         vga_write!(17, 5, "$4F{: ^46}", "[Password required]");

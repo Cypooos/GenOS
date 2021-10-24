@@ -41,7 +41,7 @@ impl RpgDial {
 }
 
 impl Screenable for RpgDial {
-    fn draw(&mut self) -> Option<Vec<SA>> {
+    fn draw(&self) -> Option<Vec<SA>> {
         for row in CH_STR_Y..25 {
             vga_writer::WRITER.lock().clear_row(row);
         }

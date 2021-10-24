@@ -22,7 +22,7 @@ pub trait Screenable: Send + Sync {
     fn init(&mut self) -> Option<Vec<SA>> {
         None
     }
-    fn draw(&mut self) -> Option<Vec<SA>> {
+    fn draw(&self) -> Option<Vec<SA>> {
         None
     }
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {

@@ -6,6 +6,7 @@ use spin::Mutex;
 use core::{fmt, usize};
 
 use alloc::{boxed::Box, vec::Vec};
+use core::mem;
 
 use crate::{
     game::screens::{
@@ -75,7 +76,7 @@ impl DesktopTUI {
         if let Some(x) = self.active_screen.on_time(self.time) {
             self.execute_actions(x)
         }
-        for mut x in self.paused_screens {
+        for mut x in &self.paused_screens {
             x.draw();
         }
         self.active_screen.draw();
@@ -90,9 +91,8 @@ impl DesktopTUI {
                     self.active_screen.init();
                 }
                 SA::Load(x) => {
-                    self.paused_screens.push(self.active_screen.drop());
-                    self.active_screen = screen_to_instance(x);
-                    self.active_screen.init();
+                    let old = mem::replace(&mut self.active_screen, screen_to_instance(x));
+                    self.paused_screens.push(old);
                 }
                 SA::Restore => {
                     self.active_screen = self
