@@ -1,6 +1,6 @@
 [package]
 name = "genos"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Cypooos <60020572+Cypooos@users.noreply.github.com>"]
 edition = "2018"
 
@@ -31,7 +31,7 @@ panic = "abort"
 
 [features]
 #   #[cfg(feature = "qemu-connect")]
-default = ["qemu-connect", "qemu-debug"]
+default = ["qemu-connect", "qemu-debug","info-bar"]
 qemu-connect = []
 qemu-debug = []
 info-bar = []

@@ -41,7 +41,7 @@ impl RpgDial {
 }
 
 impl Screenable for RpgDial {
-    fn draw(&self) -> Option<Vec<SA>> {
+    fn draw(&self) {
         for row in CH_STR_Y..25 {
             vga_writer::WRITER.lock().clear_row(row);
         }
@@ -111,13 +111,12 @@ impl Screenable for RpgDial {
         vga_write!(TXT_STR_X, TXT_STR_Y + 2, "{:.1$}", self.text[2], self.time);
         vga_write!(TXT_STR_X, TXT_STR_Y + 3, "{:.1$}", self.text[3], self.time);
         vga_write!(TXT_STR_X, TXT_STR_Y + 4, "{:.1$}", self.text[4], self.time);
-        None
     }
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         if self.time < self.size {
             self.time += TEXT_SPEED
         };
-        None
+        Some(vec![SA::Draw])
     }
     fn on_key(&mut self, key_event: KeyEvent, _as_char: Option<char>) -> Option<Vec<SA>> {
         //vga_print!("desktop:{},", scancode);

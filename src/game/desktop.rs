@@ -54,10 +54,16 @@ impl DesktopTUI {
 
     pub fn int_time(&mut self) {
         self.time = self.time.checked_add(1).unwrap_or(0);
-        self.draw();
+        if let Some(x) = self.active_screen.on_time(self.time) {
+            self.execute_actions(x)
+        }
     }
 
     fn draw(&mut self) {
+        for mut x in &self.paused_screens {
+            x.draw();
+        }
+        self.active_screen.draw();
         #[cfg(feature = "info-bar")]
         {
             vga_write!(
@@ -68,18 +74,12 @@ impl DesktopTUI {
             vga_write!(
                 0,
                 0,
-                "$3FChoke vb1.0.0 | $3e{:?}$3F | $35{:?}$3F | \x01",
-                self.active_screen,
+                "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
+                env!("CARGO_PKG_VERSION"),
+                self.paused_screens.len(),
                 self.time
             );
         }
-        if let Some(x) = self.active_screen.on_time(self.time) {
-            self.execute_actions(x)
-        }
-        for mut x in &self.paused_screens {
-            x.draw();
-        }
-        self.active_screen.draw();
         return;
     }
 
@@ -101,6 +101,7 @@ impl DesktopTUI {
                         .unwrap_or(screen_to_instance(Screen::MainMenu));
                     self.active_screen.init();
                 }
+                SA::Draw => self.draw(),
             }
         }
     }

@@ -1,7 +1,7 @@
 use super::{screens::Screen, Screenable, SA};
 use crate::vga_writer::{Color, WRITER};
 
-use alloc::{string::String, vec::Vec};
+use alloc::{string::String, vec, vec::Vec};
 
 use core::fmt;
 use pc_keyboard::KeyEvent;
@@ -22,8 +22,7 @@ pub struct FileExplorer {
 
 impl Screenable for FileExplorer {
     fn init(&mut self) -> Option<Vec<SA>> {
-        WRITER.lock().clear();
-        None
+        Some(vec![SA::Draw])
     }
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         None

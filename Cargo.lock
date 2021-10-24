@@ -28,7 +28,7 @@ checksum = "d531514efb06912141fa65967447de805691b685a7565c87d1765afe34a98aa7"
 
 [[package]]
 name = "genos"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bootloader",
  "lazy_static",

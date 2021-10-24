@@ -16,15 +16,14 @@ pub enum SA {
     Restore,
     Load(screens::Screen),
     Change(screens::Screen),
+    Draw,
 }
 
 pub trait Screenable: Send + Sync {
     fn init(&mut self) -> Option<Vec<SA>> {
-        None
+        Some(vec![SA::Draw])
     }
-    fn draw(&self) -> Option<Vec<SA>> {
-        None
-    }
+    fn draw(&self) {}
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         None
     }

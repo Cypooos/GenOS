@@ -19,12 +19,12 @@ pub enum OneScreenMenu {
 
 impl Screenable for OneScreenMenu {
     fn init(&mut self) -> Option<Vec<SA>> {
-        None
+        Some(vec![SA::Draw])
     }
-    fn draw(&self) -> Option<Vec<SA>> {
+    fn draw(&self) {
+        vga_writer::WRITER.lock().clear();
         match self {
             OneScreenMenu::MainMenu => {
-                vga_writer::WRITER.lock().clear();
                 vga_write!(
                     0,
                     6,
@@ -57,7 +57,6 @@ impl Screenable for OneScreenMenu {
                 );
             }
             OneScreenMenu::_404 => {
-                vga_writer::WRITER.lock().clear();
                 vga_write!(
                     0,
                     7,
@@ -71,7 +70,6 @@ impl Screenable for OneScreenMenu {
                 );
             }
         };
-        None
     }
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         None
@@ -148,9 +146,9 @@ const PASSWORD_MENU_TIME: usize = 20;
 
 impl Screenable for PasswordMenu {
     fn init(&mut self) -> Option<Vec<SA>> {
-        None
+        Some(vec![SA::Draw])
     }
-    fn draw(&self) -> Option<Vec<SA>> {
+    fn draw(&self) {
         let yee = format!("$3E{:_<1$}", self.act_code, self.code.len());
 
         vga_write!(17, 5, "$4F{: ^46}", "[Password required]");
@@ -159,7 +157,6 @@ impl Screenable for PasswordMenu {
         vga_write!(17, 8, "$3F{: ^46}", "");
         vga_write!(17, 9, "$3F{: ^49}", yee);
         vga_write!(17, 10, "$3F{: ^46}", "");
-        None
     }
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
         if self.act_code.len() == self.code.len() {

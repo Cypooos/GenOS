@@ -68,10 +68,10 @@ impl Level {
 
 impl Screenable for Level {
     fn init(&mut self) -> Option<Vec<SA>> {
-        None
+        Some(vec![SA::Draw])
     }
 
-    fn draw(&self) -> Option<Vec<SA>> {
+    fn draw(&self) {
         vga_writer::WRITER.lock().clear();
         vga_write!(0, 21, "$8F{: ^80}", self.name);
         vga_write!(0, 22, "$3F{: ^80}", self.description.0);
@@ -128,7 +128,6 @@ impl Screenable for Level {
                 }
             }
         };
-        None
     }
 
     fn on_time(&mut self, _time: u8) -> Option<Vec<SA>> {
