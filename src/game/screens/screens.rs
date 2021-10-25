@@ -1,4 +1,6 @@
-use alloc::{boxed::Box, vec};
+use alloc::{boxed::Box, string::ToString, vec};
+
+use crate::game::screens::pop_up::PopUp;
 
 use super::{Screenable, SA};
 
@@ -29,7 +31,18 @@ pub enum Screen {
 pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
     match ele {
         Screen::MainMenu => Box::new(OneScreenMenu::MainMenu),
-        Screen::CreditMenu => Box::new(OneScreenMenu::CreditMenu),
+        Screen::CreditMenu => Box::new(PopUp::new(
+            "Credits",
+            (20, 10),
+            (10, 10),
+            vec![
+                "".to_string(),
+                "".to_string(),
+                "This game is cool".to_string(),
+            ],
+            vec![SA::Restore, SA::Load(Screen::MainMenu)],
+            "$30",
+        )),
         Screen::FilesPassword => Box::new(PasswordMenu::new(
             "456789",
             vec![SA::Restore, SA::Load(Screen::Files)],

@@ -2,6 +2,7 @@ pub mod choke_talk;
 pub mod file_explorer;
 pub mod level;
 pub mod menus;
+pub mod pop_up;
 pub mod screens;
 pub mod visual;
 

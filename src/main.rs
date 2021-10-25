@@ -14,8 +14,6 @@ use bootloader::{entry_point, BootInfo};
 
 extern crate alloc;
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
 #[no_mangle]
 pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     use genos::memory::BootInfoFrameAllocator;

@@ -13,7 +13,7 @@ use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 #[derive(Debug)]
 pub enum OneScreenMenu {
     MainMenu,
-    CreditMenu,
+    //CreditMenu,
     _404,
 }
 
@@ -40,22 +40,22 @@ impl Screenable for OneScreenMenu {
                     \n                  $0A- Press Esc  for $A0credits$0A"
                 );
             }
-            OneScreenMenu::CreditMenu => {
-                vga_write!(17, 5, "$8F{: ^46}", "CHOKE: credits");
-                vga_write!(17, 6, "$3F{: ^49}", "A OS-game by $3E<Discursif/>");
-                vga_write!(17, 7, "$3F{: ^46}", " ");
-                vga_write!(17, 8, "$3F{: ^46}", " ");
-                vga_write!(17, 9, "$3F{: ^46}", "Everything made by :");
-                vga_write!(17, 10, "$3F{: ^49}", "@$3ECypooos");
-                vga_write!(17, 11, "$3F{: ^46}", "");
-                vga_write!(17, 12, "$3F{: ^46}", "");
-                vga_write!(
-                    17,
-                    13,
-                    "$3F{: ^46}",
-                    "OS made in rust based on PHIL'S tutorial"
-                );
-            }
+            // OneScreenMenu::CreditMenu => {
+            //     vga_write!(17, 5, "$8F{: ^46}", "CHOKE: credits");
+            //     vga_write!(17, 6, "$3F{: ^49}", "A OS-game by $3E<Discursif/>");
+            //     vga_write!(17, 7, "$3F{: ^46}", " ");
+            //     vga_write!(17, 8, "$3F{: ^46}", " ");
+            //     vga_write!(17, 9, "$3F{: ^46}", "Everything made by :");
+            //     vga_write!(17, 10, "$3F{: ^49}", "@$3ECypooos");
+            //     vga_write!(17, 11, "$3F{: ^46}", "");
+            //     vga_write!(17, 12, "$3F{: ^46}", "");
+            //     vga_write!(
+            //         17,
+            //         13,
+            //         "$3F{: ^46}",
+            //         "OS made in rust based on PHIL'S tutorial"
+            //     );
+            // }
             OneScreenMenu::_404 => {
                 vga_write!(
                     0,
@@ -90,9 +90,9 @@ impl Screenable for OneScreenMenu {
                         OneScreenMenu::MainMenu => {
                             return Some(vec![SA::Change(Screen::CreditMenu)])
                         }
-                        OneScreenMenu::CreditMenu => {
-                            return Some(vec![SA::Change(Screen::MainMenu)])
-                        }
+                        //OneScreenMenu::CreditMenu => {
+                        //    return Some(vec![SA::Change(Screen::MainMenu)])
+                        //}
                         _ => (),
                     };
                 };
