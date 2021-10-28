@@ -16,6 +16,8 @@ use crate::{
     vga_writer,
 };
 
+use super::audio;
+
 lazy_static! {
     static ref DESKTOP_LOGGER: [[vga_writer::ScreenChar; vga_writer::BUFFER_WIDTH]; vga_writer::BUFFER_HEIGHT] =
         [[vga_writer::DEFAULT_SCREENCHAR; vga_writer::BUFFER_WIDTH]; vga_writer::BUFFER_HEIGHT];
@@ -35,7 +37,7 @@ pub struct DesktopTUI {
     active_screen: Box<dyn Screenable>,
     paused_screens: Vec<Box<dyn Screenable>>,
     // levels: HashMap<String, Box<dyn Screenable>>,
-    time: u8,
+    time: u16,
 }
 
 impl fmt::Write for DesktopTUI {
@@ -54,32 +56,52 @@ impl DesktopTUI {
 
     pub fn int_time(&mut self) {
         self.time = self.time.checked_add(1).unwrap_or(0);
-        if let Some(x) = self.active_screen.on_time(self.time) {
-            self.execute_actions(x)
+        //audio::set_phase_pic2(440);
+        if (self.time & 0xFF) == 0 {
+            audio::set_phase_pic2(((self.time >> 8) * 220 + 220) as u32);
+            if let Some(x) = self.active_screen.on_time((self.time >> 8) as u8) {
+                self.execute_actions(x);
+            }
+            #[cfg(feature = "info-bar")]
+            {
+                vga_write!(
+                    0,
+                    0,
+                    "$3F                                                                    <Discursif/>"
+                );
+                vga_write!(
+                    0,
+                    0,
+                    "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
+                    env!("CARGO_PKG_VERSION"),
+                    self.paused_screens.len(),
+                    self.time
+                );
+            };
         }
     }
 
     fn draw(&mut self) {
         for mut x in &self.paused_screens {
             x.draw();
+            #[cfg(feature = "info-bar")]
+            {
+                vga_write!(
+                    0,
+                    0,
+                    "$3F                                                                    <Discursif/>"
+                );
+                vga_write!(
+                    0,
+                    0,
+                    "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
+                    env!("CARGO_PKG_VERSION"),
+                    self.paused_screens.len(),
+                    self.time
+                );
+            }
         }
         self.active_screen.draw();
-        #[cfg(feature = "info-bar")]
-        {
-            vga_write!(
-                0,
-                0,
-                "$3F                                                                    <Discursif/>"
-            );
-            vga_write!(
-                0,
-                0,
-                "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
-                env!("CARGO_PKG_VERSION"),
-                self.paused_screens.len(),
-                self.time
-            );
-        }
         return;
     }
 

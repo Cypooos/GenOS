@@ -7,7 +7,7 @@ use alloc::{
     vec::Vec,
 };
 
-use core::fmt;
+use core::{fmt, hash::Hasher};
 use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 
 #[derive(Debug)]

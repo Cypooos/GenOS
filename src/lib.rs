@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(asm)]
 #![feature(array_map)]
 #![cfg_attr(test, no_main)]
 #![feature(abi_x86_interrupt)]

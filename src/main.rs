@@ -1,5 +1,6 @@
 // src/main.rs
 #![no_std]
+#![feature(asm)]
 #![feature(array_map)]
 #![no_main]
 #![feature(custom_test_frameworks)]
@@ -7,6 +8,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
+use genos::game::audio;
 use genos::{allocator, game::desktop::DESKTOP};
 use genos::{debug, done, error, info}; // new import
 
@@ -36,6 +38,9 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     debug!("Initialisation of the allocator");
 
     done!("OS launch");
+
+    audio::set_phase(44100);
+    audio::set_phase_pic2(440);
 
     DESKTOP.lock().start();
 
