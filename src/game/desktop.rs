@@ -1,22 +1,19 @@
 use lazy_static::lazy_static;
 
+use core::{fmt, usize};
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use spin::Mutex;
 
-use core::{fmt, usize};
-
-use alloc::{boxed::Box, vec::Vec};
-use core::mem;
-
 use crate::{
+    game::audio,
     game::screens::{
         screens::{screen_to_instance, Screen},
         Screenable, SA,
     },
-    vga_writer,
+    io::vga_writer,
 };
-
-use super::audio;
+use alloc::{boxed::Box, vec::Vec};
+use core::mem;
 
 lazy_static! {
     static ref DESKTOP_LOGGER: [[vga_writer::ScreenChar; vga_writer::BUFFER_WIDTH]; vga_writer::BUFFER_HEIGHT] =
@@ -56,9 +53,8 @@ impl DesktopTUI {
 
     pub fn int_time(&mut self) {
         self.time = self.time.checked_add(1).unwrap_or(0);
-        //audio::set_phase_pic2(440);
+        audio::AUDIOMANAGER.lock().frame();
         if (self.time & 0xFF) == 0 {
-            audio::set_phase_pic2(((self.time >> 8) * 220 + 220) as u32);
             if let Some(x) = self.active_screen.on_time((self.time >> 8) as u8) {
                 self.execute_actions(x);
             }
@@ -140,6 +136,7 @@ impl DesktopTUI {
         // Detect key
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
             qemu_debug!("key:{:?}", key_event);
+
             if let Some(x) = self.active_screen.on_key(
                 key_event.clone(),
                 if let Some(key) = keyboard.process_keyevent(key_event) {

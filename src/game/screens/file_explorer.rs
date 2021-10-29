@@ -1,5 +1,5 @@
-use super::{screens::Screen, Screenable, SA};
-use crate::vga_writer::{Color, WRITER};
+use crate::game::screens::{screens::Screen, Screenable, SA};
+use crate::io::vga_writer::{Color, WRITER};
 
 use alloc::{string::String, vec, vec::Vec};
 

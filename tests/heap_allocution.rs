@@ -12,8 +12,8 @@ use core::panic::PanicInfo;
 entry_point!(main);
 
 fn main(boot_info: &'static BootInfo) -> ! {
-    use genos::allocator;
-    use genos::memory::{self, BootInfoFrameAllocator};
+    use genos::hdw::allocator;
+    use genos::hdw::memory::{self, BootInfoFrameAllocator};
     use x86_64::VirtAddr;
 
     genos::stage1();
@@ -66,7 +66,7 @@ fn large_vec() {
     assert_eq!(vec.iter().sum::<u64>(), (n - 1) * n / 2);
 }
 
-use genos::allocator::HEAP_SIZE;
+use genos::hdw::allocator::HEAP_SIZE;
 // test freed memory
 #[test_case]
 fn many_boxes() {

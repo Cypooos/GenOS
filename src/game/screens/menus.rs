@@ -1,5 +1,5 @@
 use super::{screens::Screen, Screenable, SA};
-use crate::vga_writer;
+use crate::io::vga_writer;
 use alloc::{
     format,
     string::{String, ToString},

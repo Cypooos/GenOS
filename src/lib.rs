@@ -4,7 +4,7 @@
 #![cfg_attr(test, no_main)]
 #![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::testing::test_runner)]
+#![test_runner(testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![feature(alloc_error_handler)]
 
@@ -17,22 +17,11 @@ use bootloader::{entry_point, BootInfo};
 extern crate alloc;
 
 #[macro_use]
-pub mod serial;
-#[macro_use]
-pub mod vga_writer;
-#[macro_use]
-pub mod gdt;
-#[macro_use]
-pub mod interrupts;
-#[macro_use]
-pub mod memory;
-#[macro_use]
-pub mod logger;
-#[macro_use]
-pub mod allocator;
+pub mod io;
 #[macro_use]
 pub mod game;
-
+#[macro_use]
+pub mod hdw;
 #[macro_use]
 pub mod testing;
 
@@ -68,13 +57,13 @@ pub fn hlt_loop() -> ! {
 
 pub fn stage1() {
     debug!("Stage 1...");
-    gdt::init();
-    interrupts::init_idt();
+    hdw::gdt::init();
+    hdw::interrupts::init_idt();
     debug!("Enabling interrupts");
-    unsafe { interrupts::PICS.lock().initialize() };
+    unsafe { hdw::interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
 
-    debug!("Disableling Cursor");
+    debug!("Disabling Cursor");
 
     // Exit cursor
     // use x86_64::instructions::port::Port;
@@ -98,5 +87,5 @@ fn panic(info: &PanicInfo) -> ! {
         \n    - Big Chungus"
     );
     testing::panic_handler(info);
-    hlt_loop();
+    // hlt_loop();
 }

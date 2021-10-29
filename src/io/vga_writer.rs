@@ -226,7 +226,7 @@ macro_rules! vga_print {
 
 #[macro_export]
 macro_rules! vga_write {
-    ($x:expr,$y:expr, $($arg:tt)*) => ($crate::vga_writer::_write(($x,$y),format_args!($($arg)*)));
+    ($x:expr,$y:expr, $($arg:tt)*) => ($crate::io::vga_writer::_write(($x,$y),format_args!($($arg)*)));
 }
 
 #[doc(hidden)]

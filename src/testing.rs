@@ -1,13 +1,13 @@
 use core::panic::PanicInfo;
 
-use crate::{debug, done, error, info, serial};
+use crate::{debug, done, error, info, io::qemu};
 
 // our panic handler in test mode
 pub fn panic_handler(info: &PanicInfo) -> ! {
     error!("PANIC");
     error!("{}", info);
 
-    serial::exit_qemu(serial::QemuExitCode::Failed);
+    qemu::exit_qemu(qemu::QemuExitCode::Failed);
     super::hlt_loop() // not executed but whatever
 }
 
@@ -32,7 +32,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
         test.test(); // new
     }
     done!(" --- All was a succes ! --- \n");
-    serial::exit_qemu(serial::QemuExitCode::Success);
+    qemu::exit_qemu(qemu::QemuExitCode::Success);
 }
 //
 //#[test_case]

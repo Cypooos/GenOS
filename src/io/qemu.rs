@@ -27,7 +27,7 @@ pub fn _print(args: core::fmt::Arguments) {
 macro_rules! qemu_print {
     ($($arg:tt)*) => {
         #[cfg(feature = "qemu-connect")]
-        $crate::serial::_print(format_args!($($arg)*));
+        $crate::io::qemu::_print(format_args!($($arg)*));
     };
 }
 
@@ -74,60 +74,4 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
     }
-}
-
-#[inline]
-pub fn outb(port: u16, data: u8) {
-    unsafe {
-        asm!("out dx, al",in("dx") port,in("al") data);
-    };
-}
-/*
-#[inline(always)]
-pub unsafe fn outb(port: u16, val: u8) {
-    asm!("outb %al, %dx" ::
-        "{dx}"(port), "{al}"(val) ::
-        "volatile");
-}
- */
-
-#[inline]
-pub fn outw(port: u16, data: u16) {
-    unsafe {
-        asm!("out dx, ax",in("dx") port,in("ax") data);
-    };
-}
-
-#[inline]
-pub fn outl(port: u16, data: u32) {
-    unsafe {
-        asm!("out dx, eax",in("dx") port,in("eax") data);
-    };
-}
-
-#[inline]
-pub fn inb(port: u16) -> u8 {
-    let out: u8;
-    unsafe {
-        asm!("in al, dx",in("dx") port,out("al") out);
-    };
-    out
-}
-
-#[inline]
-pub fn inw(port: u16) -> u16 {
-    let out: u16;
-    unsafe {
-        asm!("in ax, dx",in("dx") port,out("ax") out);
-    };
-    out
-}
-
-#[inline]
-pub fn inl(port: u16) -> u32 {
-    let out: u32;
-    unsafe {
-        asm!("in eax, dx",in("dx") port,out("eax") out);
-    };
-    out
 }

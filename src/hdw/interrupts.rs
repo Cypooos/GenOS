@@ -2,9 +2,10 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 
 // Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
 
-use super::game::desktop::DESKTOP;
-use super::{debug, error};
-use super::{gdt, hlt_loop};
+use crate::game::desktop::DESKTOP;
+use crate::hdw::pic;
+use crate::{debug, error};
+use crate::{hdw::gdt, hlt_loop};
 use lazy_static::lazy_static;
 
 use pic8259_simple::ChainedPics;
@@ -120,6 +121,10 @@ lazy_static! {
 pub fn init_idt() {
     debug!("Initialisation of the IDT");
     IDT.load();
+
+    debug!("Setting up PIC1={}", pic::PIC1_HZ);
+    pic::set_pic1(pic::PIC1_HZ);
+    pic::start_audio();
 }
 
 #[test_case]
