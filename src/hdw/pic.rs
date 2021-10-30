@@ -15,7 +15,7 @@ pub const MAX_RATE: u32 = 1193180;
 pub fn set_pic1(hz: u32) {
     let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
     unsafe {
-        io::outb(CMD, 0xb6); // command
+        io::outb(CMD, 0x36); // command set DATA0
         io::outb(DATA0, (divisor & 0xFF) as u8); // send data
         io::outb(DATA0, (divisor >> 8) as u8);
     }
@@ -26,20 +26,16 @@ pub fn set_pic1(hz: u32) {
 
 pub fn start_audio() {
     unsafe {
-        let tmp = io::inb(0x61);
-        if tmp != (tmp | 3) {
-            // start audio
-            io::outb(0x61, tmp | 3);
-        }
+        io::outb(0x61, io::inb(0x61) | 3);
     }
 }
 
 pub fn set_pic2(hz: u32) {
-    // let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
+    let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
     //let microseconds = ((sample * 60) / 255) as u16; // to 8bit
     unsafe {
-        io::outb(CMD, 0xb6); // command
-        io::outb(DATA2, (hz & 0xFF) as u8); // send data
-        io::outb(DATA2, (hz >> 8) as u8);
+        io::outb(CMD, 0xb6); // command set DATA2
+        io::outb(DATA2, (divisor & 0xFF) as u8); // send data
+        io::outb(DATA2, (divisor >> 8) as u8);
     }
 }
