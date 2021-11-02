@@ -16,6 +16,12 @@ macro_rules! print {
 #[macro_export]
 macro_rules! debug {
     ($($arg:tt)*) => ({
+        #[cfg(feature = "qemu-connect")]
+        {
+            $crate::io::qemu::_print(format_args!("[\x1b[0;35mDBUG\x1b[0m] "));
+            $crate::io::qemu::_print(format_args!($($arg)*));
+            $crate::io::qemu::_print(format_args!("\n"));
+        }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
                 $crate::io::vga_writer::_print(format_args!("[$05DBUG$!] "));
@@ -29,18 +35,18 @@ macro_rules! debug {
             },
             _ => {}
         };
-        #[cfg(feature = "qemu-connect")]
-        {
-            $crate::io::qemu::_print(format_args!("[\x1b[0;35mDBUG\x1b[0m] "));
-            $crate::io::qemu::_print(format_args!($($arg)*));
-            $crate::io::qemu::_print(format_args!("\n"));
-        }
     });
 }
 
 #[macro_export]
 macro_rules! error {
     ($($arg:tt)*) => ({
+        #[cfg(feature = "qemu-connect")]
+        {
+        $crate::io::qemu::_print(format_args!("[\x1b[0;31mERRO\x1b[0m] "));
+        $crate::io::qemu::_print(format_args!($($arg)*));
+        $crate::io::qemu::_print(format_args!("\n"));
+        }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
                 $crate::io::vga_writer::_print(format_args!("[$04ERRO$!] "));
@@ -54,18 +60,18 @@ macro_rules! error {
             },
             _ => {}
         };
-        #[cfg(feature = "qemu-connect")]
-        {
-        $crate::io::qemu::_print(format_args!("[\x1b[0;31mERRO\x1b[0m] "));
-        $crate::io::qemu::_print(format_args!($($arg)*));
-        $crate::io::qemu::_print(format_args!("\n"));
-        }
     });
 }
 
 #[macro_export]
 macro_rules! done {
     ($($arg:tt)*) => ({
+        #[cfg(feature = "qemu-connect")]
+        {
+            $crate::io::qemu::_print(format_args!("[\x1b[0;32mDONE\x1b[0m] "));
+            $crate::io::qemu::_print(format_args!($($arg)*));
+            $crate::io::qemu::_print(format_args!("\n"));
+        }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
                 $crate::io::vga_writer::_print(format_args!("[$0ADONE$!] "));
@@ -79,18 +85,18 @@ macro_rules! done {
             },
             _ => {}
         };
-        #[cfg(feature = "qemu-connect")]
-        {
-            $crate::io::qemu::_print(format_args!("[\x1b[0;32mDONE\x1b[0m] "));
-            $crate::io::qemu::_print(format_args!($($arg)*));
-            $crate::io::qemu::_print(format_args!("\n"));
-        }
     });
 }
 
 #[macro_export]
 macro_rules! warn {
     ($($arg:tt)*) => ({
+        #[cfg(feature = "qemu-connect")]
+        {
+            $crate::io::qemu::_print(format_args!("[\x1b[0;33mWARN\x1b[0m] "));
+            $crate::io::qemu::_print(format_args!($($arg)*));
+            $crate::io::qemu::_print(format_args!("\n"));
+        }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
                 $crate::io::vga_writer::_print(format_args!("[$0EWARN$!] "));
@@ -104,18 +110,18 @@ macro_rules! warn {
             },
             _ => {}
         };
-        #[cfg(feature = "qemu-connect")]
-        {
-            $crate::io::qemu::_print(format_args!("[\x1b[0;33mWARN\x1b[0m] "));
-            $crate::io::qemu::_print(format_args!($($arg)*));
-            $crate::io::qemu::_print(format_args!("\n"));
-        }
     });
 }
 
 #[macro_export]
 macro_rules! info {
     ($($arg:tt)*) => ({
+        #[cfg(feature = "qemu-connect")]
+        {
+            $crate::io::qemu::_print(format_args!("[\x1b[0;36mINFO\x1b[0m] "));
+            $crate::io::qemu::_print(format_args!($($arg)*));
+            $crate::io::qemu::_print(format_args!("\n"));
+        }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
                 $crate::io::vga_writer::_print(format_args!("[$03INFO$!] "));
@@ -129,11 +135,5 @@ macro_rules! info {
             },
             _ => {}
         };
-        #[cfg(feature = "qemu-connect")]
-        {
-            $crate::io::qemu::_print(format_args!("[\x1b[0;36mINFO\x1b[0m] "));
-            $crate::io::qemu::_print(format_args!($($arg)*));
-            $crate::io::qemu::_print(format_args!("\n"));
-        }
     });
 }

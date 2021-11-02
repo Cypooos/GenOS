@@ -1,6 +1,8 @@
+use alloc::vec::Vec;
 use alloc::{boxed::Box, string::ToString, vec};
 
-use crate::game::screens::pop_up::PopUp;
+use crate::game::screens;
+use crate::game::screens::pop_ups::{choice::ChoicePopUp, pop_up::PopUp};
 
 use super::{Screenable, SA};
 
@@ -19,6 +21,8 @@ pub struct GameLogic {
 pub enum Screen {
     MainMenu,
     CreditMenu,
+    QuitMenu,
+    QuitMenuCant,
 
     FilesPassword,
     Files,
@@ -26,6 +30,12 @@ pub enum Screen {
     Intro(usize),
 
     Level1,
+}
+
+macro_rules! SA_RET {
+    () => {
+        vec![SA::Restore]
+    };
 }
 
 pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
@@ -40,8 +50,35 @@ pub fn screen_to_instance(ele: Screen) -> Box<dyn Screenable> {
                 "".to_string(),
                 "This game is cool".to_string(),
             ],
-            vec![SA::Restore, SA::Load(Screen::MainMenu)],
-            "$30",
+            SA_RET!(),
+        )),
+        Screen::QuitMenu => Box::new(ChoicePopUp::new(
+            "Quitting",
+            None,
+            (20, 10),
+            (10, 10),
+            vec![
+                "".to_string(),
+                "".to_string(),
+                "Are you sure ?".to_string(),
+                "".to_string(),
+                "".to_string(),
+            ],
+            vec![
+                ("Cancel".to_string(), SA_RET!()),
+                ("Ok".to_string(), SA_RET!()),
+            ],
+        )),
+        Screen::QuitMenuCant => Box::new(PopUp::new(
+            "Error",
+            (40, 3),
+            (20, 21),
+            vec![
+                "".to_string(),
+                "".to_string(),
+                "This action is impossible at the momement".to_string(),
+            ],
+            vec![SA::Overwrite(Screen::MainMenu)],
         )),
         Screen::FilesPassword => Box::new(PasswordMenu::new(
             "456789",

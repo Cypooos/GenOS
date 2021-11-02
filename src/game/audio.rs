@@ -2087,6 +2087,6 @@ impl AudioManager {
         if self.time >= SAMPLES.len() {
             self.time = 0
         };
-        pic::set_pic2((SAMPLES[self.time] as u32) * 60 / 255);
+        pic::set_pic2(if self.time % 10 <= 5 { 0 } else { 256 } as u32 * 255 / 60);
     }
 }

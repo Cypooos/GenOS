@@ -124,7 +124,11 @@ pub fn init_idt() {
 
     debug!("Setting up PIC1={}", pic::PIC1_HZ);
     pic::set_pic1(pic::PIC1_HZ);
-    pic::start_audio();
+
+    #[cfg(feature = "audio")]
+    {
+        pic::start_audio();
+    }
 }
 
 #[test_case]

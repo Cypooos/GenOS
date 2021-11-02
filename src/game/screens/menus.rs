@@ -28,16 +28,17 @@ impl Screenable for OneScreenMenu {
                 vga_write!(
                     0,
                     6,
-                    "                   $0B.o88b.  db   db   .d88b.   db   dD  d88888b  \
-                    \n                  $0Bd8P  Y8  88   88  .8P  Y8.  88 ,8P'  88'     \
-                    \n                  $038P       88ooo88  88    88  88,8P    88ooooo \
-                    \n                  $038b       88~~~88  88    88  88`8b    88~~~~~ \
-                    \n                  $02Y8b  d8  88   88  `8b  d8'  88 `88.  88.     \
-                    \n                  $0A `Y88P'  YP   YP   `Y88P'   YP   YD  Y88888P \
-                    \n\n                                  $0ESince 1985. \
-                    \n\n\n                  $0A- Press Space to $A0start$0A\
-                    \n                  $0C- Press Tab  for $C0files$0C\
-                    \n                  $0A- Press Esc  for $A0credits$0A"
+                    "                   $!B.o88b.  db   db   .d88b.   db   dD  d88888b  \
+                    \n                  $!Bd8P  Y8  88   88  .8P  Y8.  88 ,8P'  88'     \
+                    \n                  $!38P       88ooo88  88    88  88,8P    88ooooo \
+                    \n                  $!38b       88~~~88  88    88  88`8b    88~~~~~ \
+                    \n                  $!2Y8b  d8  88   88  `8b  d8'  88 `88.  88.     \
+                    \n                  $!A `Y88P'  YP   YP   `Y88P'   YP   YD  Y88888P \
+                    \n\n                                  $!ESince 1985. \
+                    \n\n\n                  $!A- Press Space to $A1start$!A\
+                    \n                  $!C- Press Tab  for $C!files$!!\
+                    \n                  $!A- Press Esc  for $A!credits$!!\
+                    \n                  $!A- Press Q    for $A!quitting$!!"
                 );
             }
             // OneScreenMenu::CreditMenu => {
@@ -84,12 +85,19 @@ impl Screenable for OneScreenMenu {
                     };
                 };
             }
+
+            KeyCode::Q => {
+                if key_event.state == KeyState::Down {
+                    match self {
+                        OneScreenMenu::MainMenu => return Some(vec![SA::Load(Screen::QuitMenu)]),
+                        _ => (),
+                    };
+                };
+            }
             KeyCode::Escape => {
                 if key_event.state == KeyState::Down {
                     match self {
-                        OneScreenMenu::MainMenu => {
-                            return Some(vec![SA::Change(Screen::CreditMenu)])
-                        }
+                        OneScreenMenu::MainMenu => return Some(vec![SA::Load(Screen::CreditMenu)]),
                         //OneScreenMenu::CreditMenu => {
                         //    return Some(vec![SA::Change(Screen::MainMenu)])
                         //}

@@ -32,7 +32,7 @@ pub fn start_audio() {
 
 pub fn set_pic2(hz: u32) {
     let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
-    //let microseconds = ((sample * 60) / 255) as u16; // to 8bit
+    // let microseconds = ((sample * 60) / 255) as u16; // to 8bit
     unsafe {
         io::outb(CMD, 0xb6); // command set DATA2
         io::outb(DATA2, (divisor & 0xFF) as u8); // send data

@@ -4,8 +4,9 @@ use core::{fmt, usize};
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use spin::Mutex;
 
+#[cfg(feature = "audio")]
+use crate::game::audio;
 use crate::{
-    game::audio,
     game::screens::{
         screens::{screen_to_instance, Screen},
         Screenable, SA,
@@ -53,7 +54,10 @@ impl DesktopTUI {
 
     pub fn int_time(&mut self) {
         self.time = self.time.checked_add(1).unwrap_or(0);
-        audio::AUDIOMANAGER.lock().frame();
+        #[cfg(feature = "audio")]
+        {
+            audio::AUDIOMANAGER.lock().frame();
+        }
         if (self.time & 0xFF) == 0 {
             if let Some(x) = self.active_screen.on_time((self.time >> 8) as u8) {
                 self.execute_actions(x);
@@ -68,12 +72,14 @@ impl DesktopTUI {
                 vga_write!(
                     0,
                     0,
-                    "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
+                    "Choke vb{} │ $!5{:?}$!F │ $!5{:?}$!F │ \x01",
                     env!("CARGO_PKG_VERSION"),
                     self.paused_screens.len(),
-                    self.time
+                    self.time >> 8
                 );
-            };
+                // vga_write!(0, 0, "111111111{}2222", "");
+                // qemu_debug!("111111111{}2222", "");
+            }
         }
     }
 
@@ -82,6 +88,8 @@ impl DesktopTUI {
             x.draw();
             #[cfg(feature = "info-bar")]
             {
+                vga_println!("PRINT:\u{B3}");
+                vga_println!("PRINT:\u{B3}");
                 vga_write!(
                     0,
                     0,
@@ -90,7 +98,7 @@ impl DesktopTUI {
                 vga_write!(
                     0,
                     0,
-                    "$3FChoke vb{} | $35{:?}$3F | $35{:?}$3F | \x01",
+                    "Choke vb{}\u{B3} $!5{:?}$!F \u{B3} $!5{:?}$!F \u{B3} \x01",
                     env!("CARGO_PKG_VERSION"),
                     self.paused_screens.len(),
                     self.time
@@ -107,6 +115,11 @@ impl DesktopTUI {
                 SA::Change(x) => {
                     self.active_screen = screen_to_instance(x);
                     self.active_screen.init();
+                }
+                SA::Overwrite(x) => {
+                    self.active_screen = screen_to_instance(x);
+                    self.active_screen.init();
+                    self.paused_screens = Vec::new();
                 }
                 SA::Load(x) => {
                     let old = mem::replace(&mut self.active_screen, screen_to_instance(x));
@@ -160,7 +173,6 @@ impl DesktopTUI {
 
 #[doc(hidden)]
 pub fn _print(_args: fmt::Arguments) {
-
     // interrupts::without_interrupts(|| {
     //     qemu_print!("ohdqiujhfs");
     //     DESKTOP.lock().write_fmt(args).unwrap();

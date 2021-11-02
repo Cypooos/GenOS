@@ -2,7 +2,7 @@ pub mod choke_talk;
 pub mod file_explorer;
 pub mod level;
 pub mod menus;
-pub mod pop_up;
+pub mod pop_ups;
 pub mod screens;
 pub mod visual;
 
@@ -14,9 +14,10 @@ use pc_keyboard::KeyEvent;
 
 #[derive(Debug, Clone, Copy)]
 pub enum SA {
-    Restore,
-    Load(screens::Screen),
-    Change(screens::Screen),
+    Restore,                    // Go back
+    Load(screens::Screen),      // On Top
+    Change(screens::Screen),    // Same Level
+    Overwrite(screens::Screen), // Overwrite stack
     Draw,
 }
 

@@ -36,8 +36,6 @@ pub unsafe fn inw(port: u16) -> u16 {
 #[inline]
 pub unsafe fn inl(port: u16) -> u32 {
     let out: u32;
-    unsafe {
-        asm!("in eax, dx",in("dx") port,out("eax") out);
-    };
+    asm!("in eax, dx",in("dx") port,out("eax") out);
     out
 }

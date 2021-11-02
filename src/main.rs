@@ -34,7 +34,7 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
 
     // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
     // MEMENTO MORI
-    debug!("Initialisation of the allocator");
+    debug!("Initialisation of the allocator done");
 
     done!("OS launch");
 

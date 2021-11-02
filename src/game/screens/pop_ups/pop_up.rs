@@ -1,4 +1,4 @@
-use super::{screens::Screen, Screenable, SA};
+use crate::game::screens::{screens::Screen, Screenable, SA};
 use crate::io::{vga_writer, vga_writer::WRITER};
 use alloc::{
     boxed::Box,
@@ -18,7 +18,6 @@ pub struct PopUp {
     pub size: (usize, usize),
     pub pos: (usize, usize),
     pub next: Vec<SA>,
-    pub color: String,
 }
 
 impl PopUp {
@@ -28,7 +27,6 @@ impl PopUp {
         pos: (usize, usize),
         content: Vec<String>,
         next: Vec<SA>,
-        color: &str,
     ) -> Self {
         Self {
             name: name.to_string(),
@@ -36,7 +34,6 @@ impl PopUp {
             size,
             pos,
             next,
-            color: color.to_string(),
         }
     }
 }
@@ -48,54 +45,42 @@ impl Screenable for PopUp {
         //Some(vec![SA::Draw])
     }
     fn draw(&self) {
+        // Haut-bas
         for x in 0..=self.size.0 {
-            vga_write!(x + self.pos.0, self.pos.1, "{}\u{CD}", self.color);
-            vga_write!(
-                x + self.pos.0,
-                self.pos.1 + self.size.1,
-                "{}\u{C4}",
-                self.color,
-            );
+            vga_write!(x + self.pos.0, self.pos.1, "$3B\u{C4}");
+            vga_write!(x + self.pos.0, self.pos.1 + self.size.1, "$3B\u{C4}",);
         }
-        for y in 0..self.size.1 {
+        // gauche-droite
+        for y in 1..self.size.1 {
             vga_write!(
                 self.pos.0,
                 self.pos.1 + y,
-                "{}\u{B3}{:width$}",
-                self.color,
+                "$3B\u{B3}{:width$}$3B\u{B3}",
                 ' ',
-                width = self.size.0
-            );
-            vga_write!(
-                self.pos.0 + self.size.0,
-                self.pos.1 + y,
-                "{}\u{B3}",
-                self.color,
+                width = self.size.0 - 1
             );
         }
+        // name & escape
+        vga_write!(self.pos.0, self.pos.1, "$3B\u{DA}$3F {} ", self.name);
         vga_write!(
-            self.pos.0,
+            self.pos.0 + self.size.0 - 5,
             self.pos.1,
-            "{}\u{D5}\u{CD} {} ",
-            self.color,
-            self.name
+            "$3B[$34Esc$3B]\u{BF}"
         );
-        vga_write!(self.pos.0 + self.size.0, self.pos.1, "{}\u{B8}", self.color);
-        vga_write!(self.pos.0, self.pos.1 + self.size.1, "{}\u{C0}", self.color);
+        // right corners
+        vga_write!(self.pos.0, self.pos.1 + self.size.1, "$3B\u{BF}");
         vga_write!(
             self.pos.0 + self.size.0,
             self.pos.1 + self.size.1,
-            "{}\u{D9}",
-            self.color
+            "$3B\u{D9}",
         );
-
+        // Content
         let mut x = 0;
         for line in &self.content {
             vga_write!(
                 self.pos.0 + 1,
                 self.pos.1 + x + 1,
-                "{}{:^width$}",
-                self.color,
+                "$3F{:^width$}",
                 line,
                 width = self.size.0 - 1
             );

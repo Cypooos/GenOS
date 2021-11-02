@@ -35,6 +35,7 @@ default = ["qemu-connect", "qemu-debug","info-bar"]
 qemu-connect = []
 qemu-debug = []
 info-bar = []
+audio = []
 
 
 [package.metadata.bootimage]
