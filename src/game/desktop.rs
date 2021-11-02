@@ -72,7 +72,7 @@ impl DesktopTUI {
                 vga_write!(
                     0,
                     0,
-                    "Choke vb{} │ $!5{:?}$!F │ $!5{:?}$!F │ \x01",
+                    "Choke vb{} \u{B3} $!5{:?}$!F \u{B3} $!5{:?}$!F \u{B3} \x01",
                     env!("CARGO_PKG_VERSION"),
                     self.paused_screens.len(),
                     self.time >> 8
@@ -88,8 +88,6 @@ impl DesktopTUI {
             x.draw();
             #[cfg(feature = "info-bar")]
             {
-                vga_println!("PRINT:\u{B3}");
-                vga_println!("PRINT:\u{B3}");
                 vga_write!(
                     0,
                     0,

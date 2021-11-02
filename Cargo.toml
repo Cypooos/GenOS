@@ -1,6 +1,6 @@
 [package]
 name = "genos"
-version = "0.2.0"
+version = "0.2.3"
 authors = ["Cypooos <60020572+Cypooos@users.noreply.github.com>"]
 edition = "2018"
 

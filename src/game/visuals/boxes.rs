@@ -6,10 +6,22 @@ pub fn box_simple(pos: (usize, usize), size: (usize, usize)) {
     vga_write!(
         pos.0,
         pos.1,
-        "{:\u{C4}<width$}\u{BF}\n{}{:\u{C0}<width$}\u{D9}",
+        "{:\u{C4}<width$}\u{BF}\n{}{:\u{C4}<width$}\u{D9}",
         "\u{DA}",
-        format!("{:\u{B3}<width$}\u{B3}\n", " ", width = size.0).repeat(size.1),
-        "\u{DA}",
+        format!("{: <width$}\u{B3}\n", "\u{B3}", width = size.0).repeat(size.1),
+        "\u{C0}",
+        width = size.0
+    );
+}
+
+pub fn box_double(pos: (usize, usize), size: (usize, usize)) {
+    vga_write!(
+        pos.0,
+        pos.1,
+        "{:\u{CD}<width$}\u{BB}\n{}{:\u{CD}<width$}\u{BC}",
+        "\u{C9}",
+        format!("{: <width$}\u{BA}\n", "\u{BA}", width = size.0).repeat(size.1),
+        "\u{C8}",
         width = size.0
     );
 }

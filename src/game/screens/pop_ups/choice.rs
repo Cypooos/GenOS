@@ -9,7 +9,7 @@ use alloc::{
     vec::Vec,
 };
 
-use crate::game::visuals::boxes::box_simple;
+use crate::game::visuals::boxes::{box_double, box_simple};
 
 use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 
@@ -75,7 +75,15 @@ impl Screenable for ChoicePopUp {
         let padding = (self.size.0 - 4) / self.options.len();
         for out in &self.options {
             if x == self.selected {
+                box_double(
+                    (self.pos.0 + x * padding + 2, self.pos.1 + self.size.1 - 2),
+                    (padding - 1, 1),
+                )
             } else {
+                box_simple(
+                    (self.pos.0 + x * padding + 2, self.pos.1 + self.size.1 - 2),
+                    (padding - 1, 1),
+                )
             }
             x += 1;
         }
@@ -88,12 +96,14 @@ impl Screenable for ChoicePopUp {
         if key_event.state == KeyState::Down {
             match key_event.code {
                 KeyCode::ArrowLeft => {
-                    self.selected.checked_sub(1).unwrap_or(self.options.len());
+                    self.selected = self.selected.checked_sub(1).unwrap_or(self.options.len());
                     None
                 }
-                KeyCode::Spacebar | KeyCode::Enter | KeyCode::Escape => {
-                    Some(self.options[self.selected].1.clone())
+                KeyCode::ArrowRight => {
+                    self.selected = self.selected + 1 % self.options.len();
+                    None
                 }
+                KeyCode::Spacebar | KeyCode::Enter => Some(self.options[self.selected].1.clone()),
                 _ => None,
             }
         } else {

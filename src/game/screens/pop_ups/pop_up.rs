@@ -1,4 +1,5 @@
 use crate::game::screens::{screens::Screen, Screenable, SA};
+use crate::io::vga_writer::Color;
 use crate::io::{vga_writer, vga_writer::WRITER};
 use alloc::{
     boxed::Box,
@@ -11,6 +12,8 @@ use alloc::{
 use lazy_static::lazy_static;
 use pc_keyboard::{KeyCode, KeyEvent, KeyState};
 use spin::Mutex;
+
+use crate::game::visuals::boxes::{box_double, box_simple};
 
 pub struct PopUp {
     pub name: String,
@@ -45,35 +48,11 @@ impl Screenable for PopUp {
         //Some(vec![SA::Draw])
     }
     fn draw(&self) {
-        // Haut-bas
-        for x in 0..=self.size.0 {
-            vga_write!(x + self.pos.0, self.pos.1, "$3B\u{C4}");
-            vga_write!(x + self.pos.0, self.pos.1 + self.size.1, "$3B\u{C4}",);
-        }
-        // gauche-droite
-        for y in 1..self.size.1 {
-            vga_write!(
-                self.pos.0,
-                self.pos.1 + y,
-                "$3B\u{B3}{:width$}$3B\u{B3}",
-                ' ',
-                width = self.size.0 - 1
-            );
-        }
+        vga_colors!(Some(Color::Cyan), Some(Color::White));
+        box_simple(self.pos, self.size);
         // name & escape
-        vga_write!(self.pos.0, self.pos.1, "$3B\u{DA}$3F {} ", self.name);
-        vga_write!(
-            self.pos.0 + self.size.0 - 5,
-            self.pos.1,
-            "$3B[$34Esc$3B]\u{BF}"
-        );
-        // right corners
-        vga_write!(self.pos.0, self.pos.1 + self.size.1, "$3B\u{BF}");
-        vga_write!(
-            self.pos.0 + self.size.0,
-            self.pos.1 + self.size.1,
-            "$3B\u{D9}",
-        );
+        vga_write!(self.pos.0 + 1, self.pos.1, " {} ", self.name);
+        vga_write!(self.pos.0 + self.size.0 - 5, self.pos.1, "$3B[$34Esc$3B]");
         // Content
         let mut x = 0;
         for line in &self.content {
