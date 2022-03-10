@@ -17,6 +17,7 @@ volatile = "0.2.6" # Do not change
 bootloader = { version = "0.9.3", features = ["map_physical_memory"]}
 pic8259_simple = "0.2.0"
 pc-keyboard = "0.5.0"
+once_cell = { version = "*", default-features = false, features = ["alloc"]}
 
 [dependencies.lazy_static]
 version = "1.4.0"

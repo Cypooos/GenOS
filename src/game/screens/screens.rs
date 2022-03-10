@@ -1,5 +1,7 @@
 use alloc::vec::Vec;
 use alloc::{boxed::Box, string::ToString, vec};
+use once_cell::unsync::Lazy;
+use spin::Mutex;
 
 use crate::game::screens;
 use crate::game::screens::pop_ups::{choice::ChoicePopUp, pop_up::PopUp};
@@ -11,13 +13,26 @@ use super::level::{Level, LevelChoice};
 use super::menus::{OneScreenMenu, PasswordMenu};
 // use super::visual::GifVeiwer;
 
+lazy_static::lazy_static! {
+    static ref SCREENS: Vec<(Screen, Mutex<Box<dyn Screenable>>)> = vec![(Screen::MainMenu,Mutex::new(Box::new(OneScreenMenu::MainMenu)))];
+    static ref ERROR: Mutex<Box<dyn Screenable>> = Mutex::new(Box::new(OneScreenMenu::_404));
+}
+
+fn get_mut(screen: &Screen) -> &Mutex<Box<dyn Screenable>> {
+    SCREENS
+        .iter()
+        .find(|x| &x.0 == screen)
+        .map(|x| &x.1)
+        .unwrap_or_else(|| &ERROR)
+}
+
 pub struct GameLogic {
     pub restart_lvl1: usize, // nombre de fois qu'il a restart le level 1
     pub got_glitched: bool,
     pub nb_errors: usize, // nombre d'erreurs
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Screen {
     MainMenu,
     CreditMenu,
