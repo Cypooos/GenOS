@@ -1,6 +1,6 @@
 use crate::io;
 
-pub const PIC1_HZ: u32 = 44100;
+pub const PIC1_HZ: u32 = 1;
 
 // Thanks to OSdev.org lol
 pub const CMD: u16 = 0x43;

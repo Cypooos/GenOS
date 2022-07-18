@@ -2,9 +2,8 @@
 build-std = ["core", "compiler_builtins", "alloc"]
 build-std-features = ["compiler-builtins-mem"]
 
-
 [build]
-target = "targets/x86_64-genos.json"
+target = "x86_64-genos.json"
 
 [target.'cfg(target_os = "none")']
 runner = "bootimage runner"

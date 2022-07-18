@@ -8,7 +8,7 @@ use crate::{debug, error};
 use crate::{hdw::gdt, hlt_loop};
 use lazy_static::lazy_static;
 
-use pic8259_simple::ChainedPics;
+use pic8259::ChainedPics;
 use spin;
 
 pub const PIC_1_OFFSET: u8 = 32;
@@ -44,7 +44,7 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn page_fault(
-        stack_frame: &mut InterruptStackFrame,
+        stack_frame: InterruptStackFrame,
         error_code: PageFaultErrorCode,
     ) {
         use x86_64::registers::control::Cr2;
@@ -56,7 +56,7 @@ impl InterruptIndex {
         hlt_loop();
     }
 
-    extern "x86-interrupt" fn timer(_stack_frame: &mut InterruptStackFrame) {
+    extern "x86-interrupt" fn timer(_stack_frame: InterruptStackFrame) {
         use x86_64::instructions::interrupts;
 
         interrupts::without_interrupts(|| {
@@ -66,7 +66,7 @@ impl InterruptIndex {
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
 
-    extern "x86-interrupt" fn keyboard(_stack_frame: &mut InterruptStackFrame) {
+    extern "x86-interrupt" fn keyboard(_stack_frame: InterruptStackFrame) {
         use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
@@ -84,12 +84,12 @@ impl InterruptIndex {
         return;
     }
 
-    extern "x86-interrupt" fn breakpoint(stack_frame: &mut InterruptStackFrame) {
+    extern "x86-interrupt" fn breakpoint(stack_frame: InterruptStackFrame) {
         error!("BREAKPOINT\n{:#?}", stack_frame);
     }
 
     extern "x86-interrupt" fn double_fault(
-        stack_frame: &mut InterruptStackFrame,
+        stack_frame: InterruptStackFrame,
         _error_code: u64,
     ) -> ! {
         error!("DOUBLE-FAULT:\n{:#?}", stack_frame);

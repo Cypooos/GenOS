@@ -1,12 +1,11 @@
 #![no_std]
-#![feature(asm)]
-#![feature(array_map)]
-#![cfg_attr(test, no_main)]
-#![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
+#![feature(abi_x86_interrupt)]
+#![feature(alloc_error_handler)]
+#![feature(const_mut_refs)]
+#![cfg_attr(test, no_main)]
 #![test_runner(testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
-#![feature(alloc_error_handler)]
 
 #[allow(unused_imports)]
 use core::panic::PanicInfo;

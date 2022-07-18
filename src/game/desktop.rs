@@ -58,7 +58,7 @@ impl DesktopTUI {
         {
             audio::AUDIOMANAGER.lock().frame();
         }
-        if (self.time & 0xFF) == 0 {
+        if (self.time & 0x1) == 0 {
             if let Some(x) = self.active_screen.on_time((self.time >> 8) as u8) {
                 self.execute_actions(x);
             }

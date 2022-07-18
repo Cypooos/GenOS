@@ -1,7 +1,5 @@
 // src/main.rs
 #![no_std]
-#![feature(asm)]
-#![feature(array_map)]
 #![no_main]
 #![feature(custom_test_frameworks)]
 #![test_runner(genos::testing::test_runner)]

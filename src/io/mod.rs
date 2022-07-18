@@ -3,6 +3,7 @@ pub mod logger;
 pub mod qemu;
 #[macro_use]
 pub mod vga_writer;
+use core::arch::asm;
 
 #[inline]
 pub unsafe fn outb(port: u16, data: u8) {
