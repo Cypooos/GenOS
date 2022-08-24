@@ -1,7 +1,6 @@
-use alloc::vec::Vec;
 use volatile::Volatile;
 
-use core::{fmt, iter::Scan};
+use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -53,7 +52,7 @@ pub struct ScreenChar {
 
 pub const BUFFER_HEIGHT: usize = 25;
 pub const BUFFER_WIDTH: usize = 80;
-pub const DEFAULT_BACK: Color = Color::Blue;
+pub const DEFAULT_BACK: Color = Color::Black;
 pub const DEFAULT_FRONT: Color = Color::White;
 pub const DEFAULT_COLOR_CODE: ColorCode = ColorCode {
     back: Some(DEFAULT_BACK),

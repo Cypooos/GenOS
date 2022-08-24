@@ -24,7 +24,7 @@ macro_rules! debug {
         }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
-                $crate::io::vga_writer::_print(format_args!("[$05DBUG$!] "));
+                $crate::io::vga_writer::_print(format_args!("[$05DBUG$~~] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
@@ -44,7 +44,7 @@ macro_rules! error {
         }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
-                $crate::io::vga_writer::_print(format_args!("[$04ERRO$!] "));
+                $crate::io::vga_writer::_print(format_args!("[$04ERRO$~~] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
@@ -64,7 +64,7 @@ macro_rules! done {
         }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
-                $crate::io::vga_writer::_print(format_args!("[$0ADONE$!] "));
+                $crate::io::vga_writer::_print(format_args!("[$0ADONE$~~] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
@@ -84,7 +84,7 @@ macro_rules! warn {
         }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
-                $crate::io::vga_writer::_print(format_args!("[$0EWARN$!] "));
+                $crate::io::vga_writer::_print(format_args!("[$0EWARN$~~] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
@@ -104,7 +104,7 @@ macro_rules! info {
         }
         match ($crate::OS_INFO.lock().boot_level) {
             0 => {
-                $crate::io::vga_writer::_print(format_args!("[$03INFO$!] "));
+                $crate::io::vga_writer::_print(format_args!("[$03INFO$~~] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
