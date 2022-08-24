@@ -2,7 +2,6 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 
 // Role of interrupt : re-route user interactiçon to desktop, + manage inteerupts errors
 
-use crate::game::desktop::DESKTOP;
 use crate::hdw::pic;
 use crate::{debug, error};
 use crate::{hdw::gdt, hlt_loop};
@@ -57,16 +56,19 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn timer(_stack_frame: InterruptStackFrame) {
+        /*
         use x86_64::instructions::interrupts;
 
         interrupts::without_interrupts(|| {
             unsafe { DESKTOP.force_unlock() };
             DESKTOP.lock().int_time();
         });
+        */
         InterruptIndex::send_bye_signal(InterruptIndex::Timer);
     }
 
     extern "x86-interrupt" fn keyboard(_stack_frame: InterruptStackFrame) {
+        /*
         use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
@@ -80,6 +82,7 @@ impl InterruptIndex {
 
             desk.int_key(scancode);
         });
+        */
         InterruptIndex::send_bye_signal(InterruptIndex::Keyboard);
         return;
     }

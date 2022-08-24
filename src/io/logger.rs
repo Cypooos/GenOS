@@ -28,11 +28,6 @@ macro_rules! debug {
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
-            1 => {
-                $crate::game::desktop::_print(format_args!("[$05DBUG$!] "));
-                $crate::game::desktop::_print(format_args!($($arg)*));
-                $crate::game::desktop::_print((format_args!("\n")));
-            },
             _ => {}
         };
     });
@@ -52,11 +47,6 @@ macro_rules! error {
                 $crate::io::vga_writer::_print(format_args!("[$04ERRO$!] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
-            },
-            1 => {
-               $crate::game::desktop::_print((format_args!("[$04ERRO$!] ")));
-               $crate::game::desktop::_print(format_args!($($arg)*));
-               $crate::game::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };
@@ -78,11 +68,6 @@ macro_rules! done {
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
-            1 => {
-                $crate::game::desktop::_print((format_args!("[$0ADONE$!] ")));
-                $crate::game::desktop::_print(format_args!($($arg)*));
-                $crate::game::desktop::_print((format_args!("\n")));
-            },
             _ => {}
         };
     });
@@ -103,11 +88,6 @@ macro_rules! warn {
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
             },
-            1 => {
-                $crate::game::desktop::_print((format_args!("[$0EWARN$!] ")));
-                $crate::game::desktop::_print(format_args!($($arg)*));
-                $crate::game::desktop::_print((format_args!("\n")));
-            },
             _ => {}
         };
     });
@@ -127,11 +107,6 @@ macro_rules! info {
                 $crate::io::vga_writer::_print(format_args!("[$03INFO$!] "));
                 $crate::io::vga_writer::_print(format_args!($($arg)*));
                 $crate::io::vga_writer::_print(format_args!("\n"));
-            },
-            1 => {
-                $crate::game::desktop::_print((format_args!("[$03INFO$!] ")));
-                $crate::game::desktop::_print(format_args!($($arg)*));
-                $crate::game::desktop::_print((format_args!("\n")));
             },
             _ => {}
         };

@@ -7,7 +7,7 @@
 
 use core::panic::PanicInfo;
 use genos::{debug, done, info};
-use genos::{game::desktop::DESKTOP, hdw::allocator}; // new import
+use genos::hdw::allocator;
 
 use bootloader::{entry_point, BootInfo};
 
@@ -34,14 +34,10 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     // MEMENTO MORI
     debug!("Initialisation of the allocator done");
 
-    done!("OS launch XOXO");
-    done!("OS launch XOXOXXX");
-    unsafe{DESKTOP.force_unlock();}
-    done!("OS launch 2");
+    done!("OS launch");
 
-    (*DESKTOP.lock()).start();
-    done!("Desktop closed");
 
+    debug!("Looping.");
     genos::hlt_loop();
 }
 
