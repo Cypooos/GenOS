@@ -34,9 +34,13 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     // MEMENTO MORI
     debug!("Initialisation of the allocator done");
 
-    done!("OS launch");
+    done!("OS launch XOXO");
+    done!("OS launch XOXOXXX");
+    unsafe{DESKTOP.force_unlock();}
+    done!("OS launch 2");
 
-    DESKTOP.lock().start();
+    (*DESKTOP.lock()).start();
+    done!("Desktop closed");
 
     genos::hlt_loop();
 }

@@ -1,17 +1,17 @@
 use lazy_static::lazy_static;
-
 use core::{fmt, usize};
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use spin::Mutex;
 
 #[cfg(feature = "audio")]
 use crate::game::audio;
+use crate::{done};
 use crate::{
     game::screens::{
         screens::{screen_to_instance, Screen},
         Screenable, SA,
     },
-    io::vga_writer,
+    io::vga_writer
 };
 use alloc::{boxed::Box, vec::Vec};
 use core::mem;
@@ -47,6 +47,7 @@ impl fmt::Write for DesktopTUI {
 
 impl DesktopTUI {
     pub fn start(&mut self) {
+        done!("Starting desktop");
         if let Some(x) = self.active_screen.init() {
             self.execute_actions(x)
         }
