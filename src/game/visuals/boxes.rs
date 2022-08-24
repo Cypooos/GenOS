@@ -42,7 +42,7 @@ pub fn old_box_simple(pos: (usize, usize), size: (usize, usize)) {
         "\u{D9}",
         width = size.0
     );
-    for x in 1..size.1 {
+    for _x in 1..size.1 {
         vga_write!(
             pos.0,
             pos.1 + size.1,
