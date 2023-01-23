@@ -36,3 +36,11 @@ Other things will be available :
  - Making relations (like a `son:X,Y,Z` tag that will allow for a path-like system) and relation operation easier
 
 It is very much still in the works.
+
+## Branches and versions
+
+`Choke` is a game design to be an OS at the same time. This branch use this OS to this endevor.
+
+The screen trait is only present on the `Choke` branch for now.
+
+See [GenOS-old](https://github.com/Cypooos/GenOS-old) for the old C++ version of this project
