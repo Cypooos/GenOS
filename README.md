@@ -1,7 +1,10 @@
 # GenOS
 This is an operating system based on [PHIL'S tutorial](https://os.phil-opp.com/)
 
-This have the goal of proposing a different way of storing data, inspired by set theory: where one can do intersection, union and complementary of tags, where each file can have multiple tags.
+This have the goal of proposing a different way of storing data, inspired by set theory: one can do intersection, union and complementary of tags, where each file can have multiple tags.
+
+For now it serves as a template to a project on another branch (`Choke`) witch aim to be the first game to be play on a operating system.
+This branch have a TUI manager and a custom trait use to create a scene system, and a buzzer sound implementation for sound output.
 
 Progress made:
  - [x] GDT
