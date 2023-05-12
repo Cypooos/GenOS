@@ -18,7 +18,7 @@ extern crate alloc;
 #[macro_use]
 pub mod io;
 #[macro_use]
-pub mod game;
+pub mod interface;
 #[macro_use]
 pub mod hdw;
 #[macro_use]
@@ -40,8 +40,9 @@ pub struct OsInfoStruct {
 
 #[cfg(test)]
 #[no_mangle]
-pub fn entry_fct(_t: &'static BootInfo) -> ! {
+pub fn entry_fct(t: &'static BootInfo) -> ! {
     stage1();
+    stage2(t);
     test_main();
     hlt_loop();
 }

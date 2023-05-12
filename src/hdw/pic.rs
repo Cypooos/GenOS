@@ -8,7 +8,7 @@ pub const DATA0: u16 = 0x40; // pic 1 connected to IDT
 pub const DATA1: u16 = 0x41; // not used
 pub const DATA2: u16 = 0x42; // pic 2 connected to speaker w/ command
 
-pub const MAX_RATE: u32 = 1193180;
+pub const MAX_RATE: u32 = 1193180; // https://www.reddit.com/r/osdev/comments/7gorff/pit_and_frequency/
 
 // TODO: not use outb and use serial::port (remove unsafe)
 
@@ -31,7 +31,7 @@ pub fn start_audio() {
 }
 
 pub fn set_pic2(hz: u32) {
-    let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
+    let divisor = MAX_RATE.checked_div(6*hz).unwrap_or(0);
     // let microseconds = ((sample * 60) / 255) as u16; // to 8bit
     unsafe {
         io::outb(CMD, 0xb6); // command set DATA2

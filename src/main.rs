@@ -6,11 +6,12 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use genos::{debug, done, info};
-
+use genos::{done, info};
+use genos::interface::default::default_interface;
 use bootloader::{entry_point, BootInfo};
 
 extern crate alloc;
+
 
 #[no_mangle]
 pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
@@ -26,8 +27,8 @@ pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
     test_main();
 
 
-    debug!("Looping...");
-    genos::hlt_loop();
+    default_interface();
+    //genos::hlt_loop();
 }
 
 entry_point!(entry_fct);

@@ -5,6 +5,8 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, Pag
 use crate::hdw::pic;
 use crate::{debug, error};
 use crate::{hdw::gdt, hlt_loop};
+use crate::interface::events::InterruptEvent;
+
 use lazy_static::lazy_static;
 
 use pic8259::ChainedPics;
@@ -56,6 +58,7 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn timer(_stack_frame: InterruptStackFrame) {
+        InterruptEvent::Time.push();
         /*
         use x86_64::instructions::interrupts;
 
@@ -68,21 +71,15 @@ impl InterruptIndex {
     }
 
     extern "x86-interrupt" fn keyboard(_stack_frame: InterruptStackFrame) {
-        /*
         use x86_64::instructions::interrupts;
         use x86_64::instructions::port::Port;
 
         interrupts::without_interrupts(|| {
             let mut port = Port::new(0x60);
-            unsafe { DESKTOP.force_unlock() };
-
-            let mut desk = DESKTOP.lock();
-
             let scancode: u8 = unsafe { port.read() };
 
-            desk.int_key(scancode);
+            InterruptEvent::Key(scancode).push();
         });
-        */
         InterruptIndex::send_bye_signal(InterruptIndex::Keyboard);
         return;
     }
@@ -105,7 +102,6 @@ lazy_static! {
         let mut idt = InterruptDescriptorTable::new();
 
         // exeptions
-
         idt.breakpoint.set_handler_fn(InterruptIndex::breakpoint);
         unsafe {
             idt.double_fault
