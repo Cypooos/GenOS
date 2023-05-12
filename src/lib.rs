@@ -11,7 +11,7 @@
 use core::panic::PanicInfo;
 
 #[cfg(test)]
-use bootloader::{entry_point, BootInfo};
+use bootloader::entry_point;
 
 extern crate alloc;
 
@@ -28,6 +28,7 @@ pub mod testing;
 // pub mod tui;
 use lazy_static::lazy_static;
 use spin::Mutex;
+use bootloader::BootInfo;
 
 lazy_static! {
     pub static ref OS_INFO: Mutex<OsInfoStruct> = Mutex::new(OsInfoStruct { boot_level: 0u8 });
@@ -52,6 +53,23 @@ pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();
     }
+}
+
+pub fn stage2(boot_info:&'static BootInfo) {
+    use x86_64::VirtAddr;
+    use hdw::memory::BootInfoFrameAllocator;
+    use hdw::allocator;
+
+    debug!("Stage 2...");
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    debug!("Starting memory mapper");
+    let mut mapper = unsafe { hdw::memory::init(phys_mem_offset) };
+    debug!("Starting frame allocator");
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    debug!("Starting heap");
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("Heap initialization failed");
+    done!("Stage 2");
 }
 
 pub fn stage1() {

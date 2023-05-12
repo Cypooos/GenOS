@@ -7,7 +7,6 @@
 
 use core::panic::PanicInfo;
 use genos::{debug, done, info};
-use genos::hdw::allocator;
 
 use bootloader::{entry_point, BootInfo};
 
@@ -15,29 +14,19 @@ extern crate alloc;
 
 #[no_mangle]
 pub fn entry_fct(boot_info: &'static BootInfo) -> ! {
-    use genos::hdw::memory::BootInfoFrameAllocator;
-    use x86_64::VirtAddr;
 
-    info!("main called");
-
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let mut mapper = unsafe { genos::hdw::memory::init(phys_mem_offset) };
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
-    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+    info!("Main called");
 
     genos::stage1();
 
+    genos::stage2(boot_info);
+
+    done!("OS launched sucessfully");
     #[cfg(test)]
     test_main();
 
-    // PUTAIN DE LIGNE QUE j'AVAIS OUBLIEEEE
-    // MEMENTO MORI
-    debug!("Initialisation of the allocator done");
 
-    done!("OS launch");
-
-
-    debug!("Looping.");
+    debug!("Looping...");
     genos::hlt_loop();
 }
 

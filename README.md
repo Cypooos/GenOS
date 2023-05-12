@@ -17,6 +17,10 @@ Progress made:
  - [ ] Adding a request system for files
  - [ ] Testing how fast it is on different data structures
 
+## How to run
+
+Using `cargo run`, once QEMU is install will probably do it. If you are running from VScode, you might want to consider `unset GTK_PATH`, as QEMU might crash otherwise ([see here](https://github.com/ros2/ros2/issues/1406#issuecomment-1500898231))
+
 ## The request system (TODO)
 
 The idea is that the MBR of a hardrive is set to a custom type of partition, witch itself have a header containing a list of all files, and their tags.
