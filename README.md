@@ -9,19 +9,30 @@ This branch have a TUI manager and a custom trait use to create a scene system, 
 Progress made:
  - [x] GDT
  - [x] IDT
- - [x] keyboard interactions
- - [x] Screen system to render multiple TUI with a custom trait
+ - [x] Keyboard interactions
+ - [x] A simple interface system
+ - [ ] Mouse interactions
+ - [ ] Sound System
  - [ ] A simple command-line
- - [ ] Making the command line Turing-complete
- - [ ] Added file communication driver
- - [ ] Adding a request system for files
- - [ ] Testing how fast it is on different data structures
+ - [ ] A custom programming language
+ - [ ] Adding file system
+ - [ ] Custom GUI
 
 ## How to run
 
 Using `cargo run`, once QEMU is install will probably do it. If you are running from VScode, you might want to consider `unset GTK_PATH`, as QEMU might crash otherwise ([see here](https://github.com/ros2/ros2/issues/1406#issuecomment-1500898231))
 
-## The request system (TODO)
+## How to test baremetal
+
+The easiest way to test baremetal is to use a USB, since this os is non multiboot compliant.
+Plug a usb drive, locate it using `lsblk | grep sd`. Make sure the usb is unmounted using `unmount /PATH/TO/USB`.
+Then run `cargo build; dd if=target/x86_64-genos/bootimage-genos.bin of=/PATH/TO/USB`
+
+Then, you may restart your computer and boot from the USB.
+
+## The request system
+
+In the future, I would like to test a different kind of filesystem, more closer to set theory. It's for the far future.
 
 The idea is that the MBR of a hardrive is set to a custom type of partition, witch itself have a header containing a list of all files, and their tags.
 
@@ -47,7 +58,6 @@ It is very much still in the works.
 ## Branches and versions
 
 `Choke` is a game design to be an OS at the same time. This branch use this OS to this endevor.
-
-The screen trait is only present on the `Choke` branch for now.
+For now, developpement of `Choke` is paused and depricated.
 
 See [GenOS-old](https://github.com/Cypooos/GenOS-old) for the old C++ version of this project
