@@ -1,6 +1,6 @@
 use crate::io;
 
-pub const PIC1_HZ: u32 = 1;
+pub const PIC1_HZ: u32 = 60;
 
 // Thanks to OSdev.org lol
 pub const CMD: u16 = 0x43;
@@ -8,12 +8,12 @@ pub const DATA0: u16 = 0x40; // pic 1 connected to IDT
 pub const DATA1: u16 = 0x41; // not used
 pub const DATA2: u16 = 0x42; // pic 2 connected to speaker w/ command
 
-pub const MAX_RATE: u32 = 1193180; // https://www.reddit.com/r/osdev/comments/7gorff/pit_and_frequency/
-
+pub const MAX_RATE: u32 = 7159093; // https://www.reddit.com/r/osdev/comments/7gorff/pit_and_frequency/
 // TODO: not use outb and use serial::port (remove unsafe)
 
 pub fn set_pic1(hz: u32) {
-    let divisor = MAX_RATE.checked_div(hz).unwrap_or(0);
+    let divisor = MAX_RATE.checked_div(6*hz).unwrap_or(0);
+    //let divisor = 19886;
     unsafe {
         io::outb(CMD, 0x36); // command set DATA0
         io::outb(DATA0, (divisor & 0xFF) as u8); // send data

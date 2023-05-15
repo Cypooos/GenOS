@@ -40,6 +40,8 @@ macro_rules! qemu_println {
         concat!($fmt, "\n"), $($arg)*));
 }
 
+
+
 #[macro_export]
 macro_rules! qemu_debug {
     () => (

@@ -8,7 +8,9 @@ pub fn default_interface() -> ! {
             None => (),
             Some(InterruptEvent::Time) => {
                 time +=1;
-                debug!("OK ! Time is: {}",time);
+                if time%60 == 0 {
+                    debug!("OK ! Time is: {}",time/60);
+                }
             },
             Some(InterruptEvent::Key(_k)) => {},
             Some(InterruptEvent::Mouse) => {},

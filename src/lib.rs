@@ -7,6 +7,8 @@
 #![test_runner(testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate self as genos;
+
 #[allow(unused_imports)]
 use core::panic::PanicInfo;
 

@@ -5,6 +5,7 @@ pub mod qemu;
 pub mod vga_writer;
 use core::arch::asm;
 
+
 #[inline]
 pub unsafe fn outb(port: u16, data: u8) {
     asm!("out dx, al",in("dx") port,in("al") data);

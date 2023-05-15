@@ -121,7 +121,7 @@ pub fn init_idt() {
     debug!("Initialisation of the IDT");
     IDT.load();
 
-    debug!("Setting up PIC1={}", pic::PIC1_HZ);
+    debug!("Setting up PIC1={}Hz", pic::PIC1_HZ);
     pic::set_pic1(pic::PIC1_HZ);
 
     #[cfg(feature = "audio")]

@@ -26,7 +26,7 @@ Using `cargo run`, once QEMU is install will probably do it. If you are running 
 
 The easiest way to test baremetal is to use a USB, since this os is non multiboot compliant.
 Plug a usb drive, locate it using `lsblk | grep sd`. Make sure the usb is unmounted using `unmount /PATH/TO/USB`.
-Then run `cargo build; dd if=target/x86_64-genos/bootimage-genos.bin of=/PATH/TO/USB`
+Then run `cargo run --release; dd if=target/x86_64-genos/release/bootimage-genos.bin of=/PATH/TO/USB`
 
 Then, you may restart your computer and boot from the USB.
 
